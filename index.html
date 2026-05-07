@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>FP Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://apis.google.com/js/api.js"></script>
+<style>
+/* ── THEME ─────────────────────────────────────────── */
+:root {
+  --accent: #2563eb;
+  --accent2: #0ea5e9;
+  --green: #059669;
+  --amber: #d97706;
+  --red: #dc2626;
+  --purple: #7c3aed;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --transition: 0.2s cubic-bezier(.4,0,.2,1);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1220;
+    --bg2: #111827;
+    --bg3: #1f2937;
+    --bg4: #374151;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --card: #161e2e;
+    --card2: #1e293b;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f0f4f8;
+    --bg2: #e8edf3;
+    --bg3: #dde3eb;
+    --bg4: #c8d0db;
+    --border: rgba(0,0,0,0.07);
+    --border2: rgba(0,0,0,0.12);
+    --text: #0f172a;
+    --text2: #475569;
+    --text3: #94a3b8;
+    --card: #ffffff;
+    --card2: #f8fafc;
+    --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+}
+
+/* ── RESET ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: var(--font-body); background: var(--bg); color: var(--text); overflow-x: hidden; }
+button { font-family: var(--font-body); cursor: pointer; border: none; background: none; color: inherit; }
+input, textarea, select { font-family: var(--font-body); color: var(--text); }
+
+/* ── LAYOUT ─────────────────────────────────────────── */
+#app { display: flex; flex-direction: column; min-height: 100vh; }
+.top-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--card); border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px;
+}
+.logo { font-family: var(--font-display); font-size: 18px; letter-spacing: -0.3px; color: var(--text); }
+.logo span { color: var(--accent); }
+.top-right { display: flex; align-items: center; gap: 10px; }
+.avatar-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: opacity var(--transition);
+}
+.avatar-btn:hover { opacity: 0.85; }
+.date-chip {
+  font-size: 12px; color: var(--text2);
+  background: var(--bg2); border-radius: 20px;
+  padding: 4px 10px;
+}
+
+/* ── NAV TABS ─────────────────────────────────────────── */
+.nav-tabs {
+  display: flex; gap: 2px;
+  background: var(--bg2); border-radius: 10px;
+  padding: 3px; margin: 16px 20px 0;
+}
+.nav-tab {
+  flex: 1; padding: 7px 4px; border-radius: 7px;
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  text-align: center; cursor: pointer;
+  transition: all var(--transition);
+}
+.nav-tab.active { background: var(--card); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+
+/* ── MAIN CONTENT ─────────────────────────────────────── */
+.main { padding: 16px 20px 100px; flex: 1; }
+.section { display: none; }
+.section.active { display: block; }
+
+/* ── CARDS ─────────────────────────────────────────── */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+  box-shadow: var(--shadow); margin-bottom: 14px;
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); }
+.card-action { font-size: 12px; color: var(--accent); font-weight: 500; cursor: pointer; }
+
+/* ── TODAY HEADER ─────────────────────────────────────── */
+.today-hero { margin-bottom: 16px; }
+.today-greeting { font-family: var(--font-display); font-size: 26px; line-height: 1.2; color: var(--text); }
+.today-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+/* ── STATS ROW ─────────────────────────────────────────── */
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 12px 10px;
+  text-align: center;
+}
+.stat-num { font-family: var(--font-display); font-size: 22px; color: var(--text); }
+.stat-label { font-size: 10px; color: var(--text3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ── TASK ITEMS ─────────────────────────────────────────── */
+.task-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  transition: opacity var(--transition);
+}
+.task-item:last-child { border-bottom: none; }
+.task-item.done { opacity: 0.45; }
+.task-item.done .task-text { text-decoration: line-through; }
+.task-check {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1.5px solid var(--border2); flex-shrink: 0;
+  margin-top: 1px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  transition: all var(--transition);
+}
+.task-check.checked { background: var(--green); border-color: var(--green); }
+.task-check.checked::after { content: '✓'; color: #fff; font-size: 10px; font-weight: 700; }
+.task-text { font-size: 14px; flex: 1; line-height: 1.4; }
+.task-tag {
+  font-size: 10px; padding: 2px 7px; border-radius: 20px;
+  font-weight: 500; flex-shrink: 0; margin-top: 1px;
+}
+.tag-client { background: rgba(37,99,235,0.12); color: var(--accent); }
+.tag-admin { background: rgba(124,58,237,0.12); color: var(--purple); }
+.tag-personal { background: rgba(5,150,105,0.12); color: var(--green); }
+.tag-urgent { background: rgba(220,38,38,0.12); color: var(--red); }
+
+/* ── ADD TASK ─────────────────────────────────────────── */
+.add-task-row {
+  display: flex; gap: 8px; margin-top: 10px;
+}
+.add-task-row input {
+  flex: 1; background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  font-size: 13px; outline: none;
+  transition: border-color var(--transition);
+}
+.add-task-row input:focus { border-color: var(--accent); }
+.add-task-row select {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); padding: 8px 8px;
+  font-size: 12px; outline: none; cursor: pointer;
+}
+.btn-add {
+  background: var(--accent); color: #fff;
+  border-radius: var(--radius-sm); padding: 8px 14px;
+  font-size: 13px; font-weight: 500;
+  transition: opacity var(--transition);
+}
+.btn-add:hover { opacity: 0.85; }
+
+/* ── CALENDAR EVENTS ─────────────────────────────────── */
+.event-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.event-item:last-child { border-bottom: none; }
+.event-time { font-size: 11px; color: var(--text3); min-width: 42px; padding-top: 2px; font-weight: 500; }
+.event-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 4px; flex-shrink: 0; }
+.event-dot.green { background: var(--green); }
+.event-dot.amber { background: var(--amber); }
+.event-name { font-size: 14px; flex: 1; line-height: 1.4; }
+.event-loc { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* ── CLIENTS ─────────────────────────────────────────── */
+.client-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: opacity var(--transition);
+}
+.client-item:last-child { border-bottom: none; }
+.client-item:hover { opacity: 0.75; }
+.client-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; flex-shrink: 0;
+}
+.client-info { flex: 1; }
+.client-name { font-size: 14px; font-weight: 500; }
+.client-detail { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.client-status {
+  font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 600;
+}
+.status-active { background: rgba(5,150,105,0.12); color: var(--green); }
+.status-followup { background: rgba(217,119,6,0.12); color: var(--amber); }
+.status-prospect { background: rgba(37,99,235,0.12); color: var(--accent); }
+
+/* ── PIPELINE ─────────────────────────────────────────── */
+.pipeline-col { margin-bottom: 14px; }
+.pipeline-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text3); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.pipeline-dot { width: 7px; height: 7px; border-radius: 50%; }
+.pipeline-card {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  margin-bottom: 6px;
+}
+.pipeline-name { font-size: 13px; font-weight: 500; }
+.pipeline-meta { font-size: 11px; color: var(--text2); margin-top: 3px; }
+.pipeline-amount { font-size: 12px; color: var(--green); font-weight: 600; margin-top: 4px; }
+
+/* ── GOALS ─────────────────────────────────────────── */
+.goal-item { margin-bottom: 16px; }
+.goal-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.goal-name { font-size: 13px; font-weight: 500; }
+.goal-pct { font-size: 12px; color: var(--text2); }
+.progress-bar { height: 6px; background: var(--bg3); border-radius: 20px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 20px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+.goal-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* ── MARKET NOTES ─────────────────────────────────────── */
+.note-item {
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.note-item:last-child { border-bottom: none; }
+.note-date { font-size: 10px; color: var(--text3); margin-bottom: 3px; }
+.note-text { font-size: 13px; line-height: 1.5; }
+
+/* ── LOGIN SCREEN ─────────────────────────────────────── */
+#login-screen {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 100vh; padding: 40px 24px; text-align: center;
+}
+.login-logo { font-family: var(--font-display); font-size: 36px; margin-bottom: 8px; }
+.login-logo span { color: var(--accent); }
+.login-sub { font-size: 14px; color: var(--text2); margin-bottom: 40px; line-height: 1.6; }
+.login-features { text-align: left; margin-bottom: 36px; width: 100%; max-width: 320px; }
+.login-feature {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; font-size: 13px; color: var(--text2);
+}
+.feature-icon { font-size: 18px; }
+.btn-google {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--accent); color: #fff;
+  border-radius: 12px; padding: 14px 28px;
+  font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: opacity var(--transition);
+  box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+}
+.btn-google:hover { opacity: 0.88; }
+.btn-demo {
+  margin-top: 12px; font-size: 13px; color: var(--text3);
+  cursor: pointer; text-decoration: underline;
+}
+.config-note {
+  margin-top: 28px; padding: 12px 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); font-size: 12px;
+  color: var(--text2); line-height: 1.6; max-width: 320px; text-align: left;
+}
+.config-note code {
+  background: var(--bg3); padding: 1px 5px;
+  border-radius: 4px; font-size: 11px; color: var(--accent);
+}
+
+/* ── MODAL ─────────────────────────────────────────── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.5); align-items: flex-end;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--card); border-radius: 20px 20px 0 0;
+  padding: 24px 20px 40px; width: 100%; max-width: 500px; margin: 0 auto;
+}
+.modal-title { font-family: var(--font-display); font-size: 20px; margin-bottom: 16px; }
+.modal-field { margin-bottom: 12px; }
+.modal-field label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; display: block; margin-bottom: 4px; }
+.modal-field input, .modal-field select, .modal-field textarea {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); padding: 9px 12px;
+  font-size: 14px; outline: none; transition: border-color var(--transition);
+}
+.modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus { border-color: var(--accent); }
+.modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+.btn-primary {
+  flex: 1; background: var(--accent); color: #fff;
+  border-radius: var(--radius-sm); padding: 11px;
+  font-size: 14px; font-weight: 600; transition: opacity var(--transition);
+}
+.btn-primary:hover { opacity: 0.85; }
+.btn-secondary {
+  padding: 11px 20px; border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); font-size: 14px; color: var(--text2);
+  transition: background var(--transition);
+}
+.btn-secondary:hover { background: var(--bg2); }
+
+/* ── BOTTOM NAV (mobile) ─────────────────────────────── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: var(--card); border-top: 1px solid var(--border);
+  display: flex; padding: 8px 0 env(safe-area-inset-bottom, 8px);
+}
+.bottom-nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 3px; padding: 6px;
+  cursor: pointer; transition: opacity var(--transition);
+}
+.bottom-nav-item .nav-icon { font-size: 20px; }
+.bottom-nav-item .nav-label { font-size: 10px; color: var(--text3); font-weight: 500; }
+.bottom-nav-item.active .nav-label { color: var(--accent); }
+.bottom-nav-item.active .nav-icon { filter: none; }
+.nav-indicator {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--accent); margin: 0 auto;
+  opacity: 0; transition: opacity var(--transition);
+}
+.bottom-nav-item.active .nav-indicator { opacity: 1; }
+
+/* ── MISC ─────────────────────────────────────────── */
+.empty-state { text-align: center; padding: 32px 0; color: var(--text3); font-size: 13px; }
+.sync-btn {
+  font-size: 12px; color: var(--text3); display: flex;
+  align-items: center; gap: 4px; cursor: pointer;
+}
+.sync-btn:hover { color: var(--accent); }
+.spinning { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.badge-count {
+  background: var(--red); color: #fff; font-size: 9px;
+  border-radius: 20px; padding: 1px 5px; font-weight: 700;
+  position: absolute; top: 2px; right: 8px;
+}
+.relative { position: relative; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-logo">FP<span>.</span>OS</div>
+  <p class="login-sub">专为财务规划师设计的<br>个人工作系统</p>
+
+  <div class="login-features">
+    <div class="login-feature"><span class="feature-icon">📅</span> Google Calendar 实时同步</div>
+    <div class="login-feature"><span class="feature-icon">👥</span> 客户跟进 & 联系人管理</div>
+    <div class="login-feature"><span class="feature-icon">📊</span> 业务 Pipeline & 目标追踪</div>
+    <div class="login-feature"><span class="feature-icon">✅</span> 每日任务 & 市场笔记</div>
+  </div>
+
+  <button class="btn-google" onclick="signIn()">
+    <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#fff" d="M9 1.5C4.86 1.5 1.5 4.86 1.5 9s3.36 7.5 7.5 7.5c4.305 0 7.5-2.895 7.5-7.5 0-.495-.045-.975-.135-1.44H9v2.88h4.5c-.195 1.005-.78 1.86-1.665 2.43v2.01h2.685C16.245 13.38 17.25 11.295 17.25 9c0-.495-.045-.975-.135-1.44H9z"/><path fill="#fff" opacity=".6" d="M9 16.5C4.86 16.5 1.5 13.14 1.5 9h2.7C4.2 11.61 6.375 13.5 9 13.5c1.305 0 2.49-.45 3.42-1.185l-2.685-2.01C9.18 10.635 8.61 10.8 9 10.8c-1.89 0-3.495-1.275-4.065-2.985H2.19v2.07C3.39 14.805 6 16.5 9 16.5z"/></svg>
+    使用 Google 账号登录
+  </button>
+  <div class="btn-demo" onclick="loadDemoMode()">或使用演示数据体验 →</div>
+
+  <div class="config-note">
+    <strong>⚙️ 首次使用需配置</strong><br>
+    将文件顶部 <code>CLIENT_ID</code> 替换为你的 Google OAuth Client ID。
+    前往 <code>console.cloud.google.com</code> 创建凭证并启用 Calendar、People、Sheets API。
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+  <div class="top-bar">
+    <div class="logo">FP<span>.</span>OS</div>
+    <div class="top-right">
+      <div class="date-chip" id="top-date"></div>
+      <div class="avatar-btn" id="user-avatar" onclick="showProfile()">FP</div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="switchTab('today')">今日</div>
+    <div class="nav-tab" onclick="switchTab('clients')">客户</div>
+    <div class="nav-tab" onclick="switchTab('pipeline')">Pipeline</div>
+    <div class="nav-tab" onclick="switchTab('goals')">目标</div>
+    <div class="nav-tab" onclick="switchTab('notes')">笔记</div>
+  </div>
+
+  <div class="main">
+
+    <!-- TODAY TAB -->
+    <div id="tab-today" class="section active">
+      <div class="today-hero">
+        <div class="today-greeting" id="greeting-text">Good morning</div>
+        <div class="today-sub" id="greeting-sub">Loading your day...</div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-tasks">0</div>
+          <div class="stat-label">Tasks left</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-events">0</div>
+          <div class="stat-label">Meetings</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-followup">0</div>
+          <div class="stat-label">Follow-ups</div>
+        </div>
+      </div>
+
+      <!-- Calendar Events -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📅 Today's Schedule</div>
+          <div class="sync-btn" onclick="syncCalendar()">
+            <span id="sync-icon">↻</span> Sync
+          </div>
+        </div>
+        <div id="events-list">
+          <div class="empty-state">正在加载日历...</div>
+        </div>
+      </div>
+
+      <!-- Tasks -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">✅ Today's Tasks</div>
+          <div class="card-action" onclick="openAddTask()">+ Add</div>
+        </div>
+        <div id="tasks-list"></div>
+        <div class="add-task-row" id="add-task-inline" style="display:none">
+          <input id="new-task-input" placeholder="New task..." onkeydown="if(event.key==='Enter')quickAddTask()">
+          <select id="new-task-tag">
+            <option value="client">Client</option>
+            <option value="admin">Admin</option>
+            <option value="personal">Personal</option>
+            <option value="urgent">Urgent</option>
+          </select>
+          <button class="btn-add" onclick="quickAddTask()">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTS TAB -->
+    <div id="tab-clients" class="section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👥 Clients & Follow-ups</div>
+          <div class="card-action" onclick="openAddClient()">+ Add</div>
+        </div>
+        <div id="clients-list"></div>
+      </div>
+    </div>
+
+    <!-- PIPELINE TAB -->
+    <div id="tab-pipeline" class="section">
+      <div id="pipeline-view"></div>
+    </div>
+
+    <!-- GOALS TAB -->
+    <div id="tab-goals" class="section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🎯 Q2 2026 Goals</div>
+          <div class="card-action" onclick="openAddGoal()">+ Add</div>
+        </div>
+        <div id="goals-list"></div>
+      </div>
+    </div>
+
+    <!-- NOTES TAB -->
+    <div id="tab-notes" class="section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📝 Market Notes</div>
+          <div class="card-action" onclick="openAddNote()">+ Add</div>
+        </div>
+        <div id="notes-list"></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <div class="bottom-nav">
+    <div class="bottom-nav-item active relative" onclick="switchTab('today')" id="nav-today">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">今日</div>
+      <div class="nav-indicator"></div>
+    </div>
+    <div class="bottom-nav-item relative" onclick="switchTab('clients')" id="nav-clients">
+      <div class="nav-icon">👥</div>
+      <div class="nav-label">客户</div>
+      <div class="nav-indicator"></div>
+    </div>
+    <div class="bottom-nav-item relative" onclick="switchTab('pipeline')" id="nav-pipeline">
+      <div class="nav-icon">📈</div>
+      <div class="nav-label">Pipeline</div>
+      <div class="nav-indicator"></div>
+    </div>
+    <div class="bottom-nav-item relative" onclick="switchTab('goals')" id="nav-goals">
+      <div class="nav-icon">🎯</div>
+      <div class="nav-label">目标</div>
+      <div class="nav-indicator"></div>
+    </div>
+    <div class="bottom-nav-item relative" onclick="switchTab('notes')" id="nav-notes">
+      <div class="nav-icon">📝</div>
+      <div class="nav-label">笔记</div>
+      <div class="nav-indicator"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TASK MODAL -->
+<div class="modal-overlay" id="task-modal">
+  <div class="modal-box">
+    <div class="modal-title">Add Task</div>
+    <div class="modal-field">
+      <label>Task</label>
+      <input id="modal-task-text" placeholder="What needs to be done?">
+    </div>
+    <div class="modal-field">
+      <label>Category</label>
+      <select id="modal-task-tag">
+        <option value="client">👤 Client</option>
+        <option value="admin">🗂 Admin</option>
+        <option value="personal">🌿 Personal</option>
+        <option value="urgent">🔴 Urgent</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
+      <button class="btn-primary" onclick="addTaskFromModal()">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CLIENT MODAL -->
+<div class="modal-overlay" id="client-modal">
+  <div class="modal-box">
+    <div class="modal-title">Add Client</div>
+    <div class="modal-field"><label>Name</label><input id="client-name" placeholder="Full name"></div>
+    <div class="modal-field"><label>AUM / Portfolio Size</label><input id="client-aum" placeholder="e.g. MYR 500k"></div>
+    <div class="modal-field"><label>Next Follow-up</label><input id="client-followup" type="date"></div>
+    <div class="modal-field">
+      <label>Status</label>
+      <select id="client-status">
+        <option value="active">Active</option>
+        <option value="followup">Needs Follow-up</option>
+        <option value="prospect">Prospect</option>
+      </select>
+    </div>
+    <div class="modal-field"><label>Notes</label><textarea id="client-notes" rows="2" placeholder="Key info, goals, preferences..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('client-modal')">Cancel</button>
+      <button class="btn-primary" onclick="addClient()">Save Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD NOTE MODAL -->
+<div class="modal-overlay" id="note-modal">
+  <div class="modal-box">
+    <div class="modal-title">Market Note</div>
+    <div class="modal-field"><label>Note</label><textarea id="note-text" rows="4" placeholder="Market observations, ideas, macro views..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('note-modal')">Cancel</button>
+      <button class="btn-primary" onclick="addNote()">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ── Replace with your Google OAuth Client ID
+const CLIENT_ID = '226999056912-hlj6sp9a1mnip4gna0307uq3a2e8dv5s.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/contacts.readonly';
+
+// ── STATE ──
+let state = {
+  tasks: [],
+  clients: [],
+  pipeline: [],
+  goals: [],
+  notes: [],
+  events: [],
+  isDemo: false,
+  user: null
+};
+
+// ── INIT ──
+function init() {
+  updateTopDate();
+  updateGreeting();
+  loadFromStorage();
+
+  if (CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE') return;
+
+  gapi.load('client:auth2', () => {
+    gapi.client.init({
+      clientId: CLIENT_ID,
+      scope: SCOPES,
+      discoveryDocs: [
+        'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest',
+        'https://people.googleapis.com/discovery/v1/apis/people/v1/rest'
+      ]
+    }).then(() => {
+      if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+        handleSignIn();
+      }
+    });
+  });
+}
+
+function signIn() {
+  if (CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE') {
+    alert('请先在文件顶部配置你的 Google Client ID。\n\n前往 console.cloud.google.com 获取。');
+    return;
+  }
+  gapi.auth2.getAuthInstance().signIn().then(handleSignIn);
+}
+
+function handleSignIn() {
+  const profile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
+  state.user = { name: profile.getName(), email: profile.getEmail(), avatar: profile.getImageUrl() };
+  const initials = profile.getName().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  document.getElementById('user-avatar').textContent = initials;
+  showApp();
+  fetchCalendarEvents();
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('app').style.flexDirection = 'column';
+  renderAll();
+}
+
+function loadDemoMode() {
+  state.isDemo = true;
+  state.tasks = [
+    { id: 1, text: 'Review Ahmad portfolio rebalancing', tag: 'client', done: false },
+    { id: 2, text: 'Prepare Q2 market update report', tag: 'admin', done: false },
+    { id: 3, text: 'Call Sarah re: insurance renewal', tag: 'urgent', done: false },
+    { id: 4, text: 'Submit CPD hours online', tag: 'admin', done: true },
+    { id: 5, text: 'Update financial plan template', tag: 'admin', done: false },
+  ];
+  state.clients = [
+    { id: 1, name: 'Ahmad Razif', aum: 'MYR 850k', followup: '2026-05-10', status: 'active', notes: 'Conservative, prefers fixed income' },
+    { id: 2, name: 'Sarah Lim', aum: 'MYR 320k', followup: '2026-05-08', status: 'followup', notes: 'Insurance renewal due June' },
+    { id: 3, name: 'David Tan', aum: 'MYR 1.2M', followup: '2026-05-20', status: 'active', notes: 'Retirement planning focus' },
+    { id: 4, name: 'Priya Nair', aum: 'TBD', followup: '2026-05-09', status: 'prospect', notes: 'Referral from Ahmad' },
+  ];
+  state.pipeline = [
+    { id: 1, name: 'Priya Nair', stage: 'prospect', amount: 'MYR ~400k', note: 'Initial meeting done' },
+    { id: 2, name: 'Lee Family Trust', stage: 'proposal', amount: 'MYR 2.1M', note: 'Proposal sent 30 Apr' },
+    { id: 3, name: 'Farah Abdullah', stage: 'negotiation', amount: 'MYR 600k', note: 'Reviewing fee structure' },
+    { id: 4, name: 'Robert Chen', stage: 'closed', amount: 'MYR 750k', note: 'Onboarded May 2' },
+  ];
+  state.goals = [
+    { id: 1, name: 'New AUM (Q2 target: MYR 5M)', current: 3200000, target: 5000000, color: '#2563eb' },
+    { id: 2, name: 'New clients (target: 6)', current: 3, target: 6, color: '#059669' },
+    { id: 3, name: 'CPD Hours (target: 40)', current: 28, target: 40, color: '#7c3aed' },
+    { id: 4, name: 'Client reviews done (target: 20)', current: 11, target: 20, color: '#d97706' },
+  ];
+  state.notes = [
+    { id: 1, date: '7 May 2026', text: 'Fed hold expected — positioning defensively in client portfolios. Watching US 10Y yield.' },
+    { id: 2, date: '5 May 2026', text: 'KLCI testing support at 1,560. Local sentiment still cautious pre-election season.' },
+    { id: 3, date: '2 May 2026', text: 'Global tech earnings solid. Revisiting client tech allocation — consider trimming at highs.' },
+  ];
+  state.events = [
+    { time: '09:00', name: 'Ahmad — Portfolio Review', location: 'Zoom', color: '' },
+    { time: '11:30', name: 'Team Briefing', location: 'Office', color: 'amber' },
+    { time: '14:00', name: 'Lee Family Trust — Proposal Presentation', location: 'Client Office, KL', color: '' },
+    { time: '16:30', name: 'CPD Webinar: Estate Planning', location: 'Online', color: 'green' },
+  ];
+  document.getElementById('user-avatar').textContent = 'FP';
+  showApp();
+}
+
+// ── CALENDAR ──
+async function fetchCalendarEvents() {
+  if (state.isDemo) return;
+  try {
+    document.getElementById('sync-icon').classList.add('spinning');
+    const now = new Date();
+    const start = new Date(now.setHours(0,0,0,0)).toISOString();
+    const end = new Date(now.setHours(23,59,59,999)).toISOString();
+    const res = await gapi.client.calendar.events.list({
+      calendarId: 'primary', timeMin: start, timeMax: end,
+      singleEvents: true, orderBy: 'startTime', maxResults: 20
+    });
+    state.events = (res.result.items || []).map(e => ({
+      time: e.start.dateTime ? new Date(e.start.dateTime).toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' }) : 'All day',
+      name: e.summary || '(No title)',
+      location: e.location || '',
+      color: ''
+    }));
+    renderEvents();
+  } catch(e) { console.error(e); }
+  finally { document.getElementById('sync-icon').classList.remove('spinning'); }
+}
+
+function syncCalendar() { fetchCalendarEvents(); }
+
+// ── RENDER ──
+function renderAll() {
+  renderTasks(); renderEvents(); renderClients();
+  renderPipeline(); renderGoals(); renderNotes();
+  updateStats();
+}
+
+function renderEvents() {
+  const el = document.getElementById('events-list');
+  if (!state.events.length) { el.innerHTML = '<div class="empty-state">No meetings today 🎉</div>'; return; }
+  el.innerHTML = state.events.map(e => `
+    <div class="event-item">
+      <div class="event-time">${e.time}</div>
+      <div class="event-dot ${e.color}"></div>
+      <div>
+        <div class="event-name">${e.name}</div>
+        ${e.location ? `<div class="event-loc">📍 ${e.location}</div>` : ''}
+      </div>
+    </div>`).join('');
+  document.getElementById('stat-events').textContent = state.events.length;
+}
+
+function renderTasks() {
+  const el = document.getElementById('tasks-list');
+  if (!state.tasks.length) { el.innerHTML = '<div class="empty-state">No tasks yet — add one above</div>'; updateStats(); return; }
+  el.innerHTML = state.tasks.map(t => `
+    <div class="task-item ${t.done ? 'done' : ''}" id="task-${t.id}">
+      <div class="task-check ${t.done ? 'checked' : ''}" onclick="toggleTask(${t.id})"></div>
+      <div class="task-text">${t.text}</div>
+      <div class="task-tag tag-${t.tag}">${t.tag}</div>
+    </div>`).join('');
+  updateStats();
+}
+
+function renderClients() {
+  const el = document.getElementById('clients-list');
+  if (!state.clients.length) { el.innerHTML = '<div class="empty-state">No clients yet</div>'; return; }
+  const colors = ['#2563eb','#059669','#7c3aed','#d97706','#dc2626','#0ea5e9'];
+  el.innerHTML = state.clients.map((c, i) => {
+    const initials = c.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+    const daysUntil = Math.ceil((new Date(c.followup) - new Date()) / 86400000);
+    const followStr = daysUntil < 0 ? `Overdue ${Math.abs(daysUntil)}d` : daysUntil === 0 ? 'Today!' : `In ${daysUntil}d`;
+    return `<div class="client-item">
+      <div class="client-avatar" style="background:${colors[i%colors.length]}22;color:${colors[i%colors.length]}">${initials}</div>
+      <div class="client-info">
+        <div class="client-name">${c.name}</div>
+        <div class="client-detail">${c.aum} · Follow-up: ${followStr}</div>
+      </div>
+      <div class="client-status status-${c.status}">${c.status}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('stat-followup').textContent = state.clients.filter(c => c.status === 'followup').length;
+}
+
+function renderPipeline() {
+  const stages = [
+    { key: 'prospect', label: 'Prospect', color: '#94a3b8' },
+    { key: 'proposal', label: 'Proposal Sent', color: '#2563eb' },
+    { key: 'negotiation', label: 'Negotiating', color: '#d97706' },
+    { key: 'closed', label: 'Closed', color: '#059669' },
+  ];
+  const el = document.getElementById('pipeline-view');
+  el.innerHTML = stages.map(s => {
+    const items = state.pipeline.filter(p => p.stage === s.key);
+    return `<div class="pipeline-col">
+      <div class="pipeline-label">
+        <div class="pipeline-dot" style="background:${s.color}"></div>
+        ${s.label} (${items.length})
+      </div>
+      ${items.length ? items.map(p => `
+        <div class="pipeline-card">
+          <div class="pipeline-name">${p.name}</div>
+          <div class="pipeline-meta">${p.note}</div>
+          <div class="pipeline-amount">${p.amount}</div>
+        </div>`).join('') : `<div class="pipeline-card"><div class="pipeline-meta" style="color:var(--text3)">None</div></div>`}
+    </div>`;
+  }).join('');
+}
+
+function renderGoals() {
+  const el = document.getElementById('goals-list');
+  if (!state.goals.length) { el.innerHTML = '<div class="empty-state">No goals set yet</div>'; return; }
+  el.innerHTML = state.goals.map(g => {
+    const pct = Math.min(100, Math.round((g.current / g.target) * 100));
+    const cur = typeof g.current === 'number' && g.current > 999 ? g.current.toLocaleString() : g.current;
+    const tar = typeof g.target === 'number' && g.target > 999 ? g.target.toLocaleString() : g.target;
+    return `<div class="goal-item">
+      <div class="goal-header">
+        <div class="goal-name">${g.name}</div>
+        <div class="goal-pct">${pct}%</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${g.color}"></div></div>
+      <div class="goal-sub">${cur} / ${tar}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderNotes() {
+  const el = document.getElementById('notes-list');
+  if (!state.notes.length) { el.innerHTML = '<div class="empty-state">No notes yet</div>'; return; }
+  el.innerHTML = state.notes.map(n => `
+    <div class="note-item">
+      <div class="note-date">${n.date}</div>
+      <div class="note-text">${n.text}</div>
+    </div>`).join('');
+}
+
+function updateStats() {
+  const remaining = state.tasks.filter(t => !t.done).length;
+  document.getElementById('stat-tasks').textContent = remaining;
+}
+
+// ── ACTIONS ──
+function toggleTask(id) {
+  const t = state.tasks.find(t => t.id === id);
+  if (t) { t.done = !t.done; saveToStorage(); renderTasks(); }
+}
+
+function openAddTask() {
+  const row = document.getElementById('add-task-inline');
+  row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+  if (row.style.display === 'flex') document.getElementById('new-task-input').focus();
+}
+
+function quickAddTask() {
+  const text = document.getElementById('new-task-input').value.trim();
+  const tag = document.getElementById('new-task-tag').value;
+  if (!text) return;
+  state.tasks.push({ id: Date.now(), text, tag, done: false });
+  document.getElementById('new-task-input').value = '';
+  saveToStorage(); renderTasks();
+}
+
+function addTaskFromModal() {
+  const text = document.getElementById('modal-task-text').value.trim();
+  const tag = document.getElementById('modal-task-tag').value;
+  if (!text) return;
+  state.tasks.push({ id: Date.now(), text, tag, done: false });
+  document.getElementById('modal-task-text').value = '';
+  closeModal('task-modal'); saveToStorage(); renderTasks();
+}
+
+function openAddTask() {
+  document.getElementById('modal-task-text').value = '';
+  document.getElementById('task-modal').classList.add('open');
+}
+
+function openAddClient() {
+  document.getElementById('client-modal').classList.add('open');
+}
+
+function addClient() {
+  const name = document.getElementById('client-name').value.trim();
+  if (!name) return;
+  state.clients.push({
+    id: Date.now(), name,
+    aum: document.getElementById('client-aum').value || 'TBD',
+    followup: document.getElementById('client-followup').value || new Date().toISOString().split('T')[0],
+    status: document.getElementById('client-status').value,
+    notes: document.getElementById('client-notes').value
+  });
+  closeModal('client-modal'); saveToStorage(); renderClients();
+}
+
+function openAddNote() {
+  document.getElementById('note-text').value = '';
+  document.getElementById('note-modal').classList.add('open');
+}
+
+function addNote() {
+  const text = document.getElementById('note-text').value.trim();
+  if (!text) return;
+  const now = new Date();
+  state.notes.unshift({ id: Date.now(), date: now.toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }), text });
+  closeModal('note-modal'); saveToStorage(); renderNotes();
+}
+
+function openAddGoal() {
+  alert('Goal editing coming soon! Edit the state.goals array in the code to add custom goals.');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── NAV ──
+function switchTab(tab) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+  const tabs = ['today','clients','pipeline','goals','notes'];
+  const idx = tabs.indexOf(tab);
+  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+}
+
+// ── UTILS ──
+function updateTopDate() {
+  const now = new Date();
+  document.getElementById('top-date').textContent = now.toLocaleDateString('en-MY', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function updateGreeting() {
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting-text').textContent = greet + ' 👋';
+  const day = new Date().toLocaleDateString('en-MY', { weekday: 'long', day: 'numeric', month: 'long' });
+  document.getElementById('greeting-sub').textContent = day;
+}
+
+function showProfile() {
+  if (state.user) alert(`${state.user.name}\n${state.user.email}`);
+  else alert('Demo mode — connect Google account for full features.');
+}
+
+function saveToStorage() {
+  try { localStorage.setItem('fp-state', JSON.stringify({ tasks: state.tasks, clients: state.clients, pipeline: state.pipeline, goals: state.goals, notes: state.notes })); } catch(e) {}
+}
+
+function loadFromStorage() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('fp-state') || '{}');
+    if (saved.tasks) state.tasks = saved.tasks;
+    if (saved.clients) state.clients = saved.clients;
+    if (saved.pipeline) state.pipeline = saved.pipeline;
+    if (saved.goals) state.goals = saved.goals;
+    if (saved.notes) state.notes = saved.notes;
+  } catch(e) {}
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+init();
+</script>
+</body>
+</html>

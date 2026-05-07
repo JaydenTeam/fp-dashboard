@@ -441,6 +441,34 @@ input, textarea, select { font-family: var(--font-body); color: var(--text); }
         </div>
       </div>
 
+
+      <!-- Market Data -->
+      <div class="card" id="market-card">
+        <div class="card-header">
+          <div class="card-title">📊 Market Pulse</div>
+          <div class="sync-btn" onclick="fetchMarketData()">
+            <span id="market-sync-icon">↻</span> Refresh
+          </div>
+        </div>
+        <div id="market-grid-container">
+          <div class="market-loading">Loading market data...</div>
+        </div>
+      </div>
+
+
+      <!-- BNM Data -->
+      <div class="card" id="bnm-card">
+        <div class="card-header">
+          <div class="card-title">🏦 BNM · Malaysia</div>
+          <div class="sync-btn" onclick="fetchBNMData()">
+            <span id="bnm-sync-icon">↻</span> Refresh
+          </div>
+        </div>
+        <div id="bnm-container">
+          <div class="market-loading">Loading BNM data...</div>
+        </div>
+      </div>
+
       <!-- Calendar Events -->
       <div class="card">
         <div class="card-header">
@@ -751,11 +779,163 @@ async function fetchCalendarEvents() {
 
 function syncCalendar() { fetchCalendarEvents(); }
 
+
+
+// ── BNM DATA ──
+async function fetchBNMData() {
+  const container = document.getElementById('bnm-container');
+  const icon = document.getElementById('bnm-sync-icon');
+  icon.classList.add('spinning');
+
+  try {
+    const BASE = 'https://api.bnm.gov.my/public';
+    const headers = { 'Accept': 'application/vnd.BNM.API.v1+json' };
+
+    const [fxRes, oprRes, cpiRes] = await Promise.allSettled([
+      fetch(`${BASE}/exchange-rate`, { headers }),
+      fetch(`${BASE}/opr`, { headers }),
+      fetch(`${BASE}/consumer-price-index`, { headers }),
+    ]);
+
+    // FX Rates
+    let fxHTML = '';
+    const pairs = ['USD', 'SGD', 'GBP', 'EUR', 'AUD'];
+    if (fxRes.status === 'fulfilled' && fxRes.value.ok) {
+      const fxData = await fxRes.value.json();
+      const rates = fxData.data || [];
+      const filtered = rates.filter(r => pairs.includes(r.currency_code));
+      fxHTML = filtered.map(r => {
+        const sell = r.sell_rate ? parseFloat(r.sell_rate).toFixed(4) : '—';
+        const buy = r.buying_rate ? parseFloat(r.buying_rate).toFixed(4) : '—';
+        return `<div class="fx-row">
+          <span class="fx-pair">${r.currency_code}/MYR</span>
+          <span class="fx-rate">Buy ${buy} · Sell ${sell}</span>
+        </div>`;
+      }).join('');
+    } else {
+      fxHTML = '<div class="fx-row"><span class="fx-pair" style="color:var(--text3)">FX data unavailable</span></div>';
+    }
+
+    // OPR
+    let oprHTML = '—';
+    let oprDate = '';
+    if (oprRes.status === 'fulfilled' && oprRes.value.ok) {
+      const oprData = await oprRes.value.json();
+      const latest = Array.isArray(oprData.data) ? oprData.data[0] : oprData.data;
+      if (latest) {
+        oprHTML = parseFloat(latest.rate).toFixed(2) + '%';
+        oprDate = latest.date || latest.effective_date || '';
+      }
+    }
+
+    // CPI
+    let cpiHTML = '—';
+    let cpiDate = '';
+    if (cpiRes.status === 'fulfilled' && cpiRes.value.ok) {
+      const cpiData = await cpiRes.value.json();
+      const latest = Array.isArray(cpiData.data) ? cpiData.data[0] : cpiData.data;
+      if (latest) {
+        const change = latest.annual_change_pct || latest.change || latest.value || '—';
+        cpiHTML = parseFloat(change).toFixed(1) + '%';
+        cpiDate = latest.date || latest.period || '';
+      }
+    }
+
+    const now = new Date().toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' });
+
+    container.innerHTML = `
+      <div class="bnm-grid">
+        <div class="bnm-item">
+          <div class="bnm-label">OPR Rate</div>
+          <div class="bnm-value">${oprHTML}</div>
+          <div class="bnm-sub">${oprDate ? 'Effective ' + oprDate : 'Overnight Policy Rate'}</div>
+        </div>
+        <div class="bnm-item">
+          <div class="bnm-label">Inflation (CPI)</div>
+          <div class="bnm-value">${cpiHTML}</div>
+          <div class="bnm-sub">${cpiDate ? cpiDate : 'Annual change'}</div>
+        </div>
+        <div class="bnm-item bnm-full">
+          <div class="bnm-label" style="margin-bottom:8px">FX Rates vs MYR</div>
+          ${fxHTML}
+        </div>
+      </div>
+      <div class="market-time">Updated ${now} · Bank Negara Malaysia API</div>`;
+
+  } catch(e) {
+    container.innerHTML = '<div class="market-loading">Unable to load BNM data</div>';
+    console.error(e);
+  } finally {
+    icon.classList.remove('spinning');
+  }
+}
+
+// ── MARKET DATA ──
+const MARKET_SYMBOLS = [
+  { symbol: '^KLSE',  name: 'KLCI',     type: 'index' },
+  { symbol: '^GSPC',  name: 'S&P 500',  type: 'index' },
+  { symbol: '^IXIC',  name: 'Nasdaq',   type: 'index' },
+  { symbol: 'GC=F',   name: 'Gold',     type: 'commodity' },
+  { symbol: 'CL=F',   name: 'Oil WTI',  type: 'commodity' },
+];
+
+async function fetchMarketData() {
+  const container = document.getElementById('market-grid-container');
+  const icon = document.getElementById('market-sync-icon');
+  icon.classList.add('spinning');
+
+  try {
+    const results = await Promise.all(MARKET_SYMBOLS.map(async (m) => {
+      try {
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(m.symbol)}?interval=1d&range=1d`;
+        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+        const data = await res.json();
+        const parsed = JSON.parse(data.contents);
+        const meta = parsed.chart.result[0].meta;
+        const price = meta.regularMarketPrice;
+        const prev = meta.previousClose || meta.chartPreviousClose;
+        const change = price - prev;
+        const changePct = (change / prev) * 100;
+        return { ...m, price, change, changePct, ok: true };
+      } catch(e) {
+        return { ...m, ok: false };
+      }
+    }));
+
+    const now = new Date().toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' });
+
+    const formatPrice = (m) => {
+      if (m.symbol === '^KLSE') return m.price.toFixed(2);
+      if (m.symbol === 'GC=F') return m.price.toLocaleString('en', {maximumFractionDigits: 0});
+      if (m.symbol === 'CL=F') return m.price.toFixed(2);
+      return m.price.toLocaleString('en', {maximumFractionDigits: 0});
+    };
+
+    const grid = results.map(m => {
+      if (!m.ok) return `<div class="market-item"><div class="market-name">${m.name}</div><div class="market-price">—</div><div class="market-change market-flat">N/A</div></div>`;
+      const cls = m.change > 0 ? 'market-up' : m.change < 0 ? 'market-down' : 'market-flat';
+      const arrow = m.change > 0 ? '▲' : m.change < 0 ? '▼' : '—';
+      const pct = Math.abs(m.changePct).toFixed(2);
+      return `<div class="market-item">
+        <div class="market-name">${m.name}</div>
+        <div class="market-price">${formatPrice(m)}</div>
+        <div class="market-change ${cls}">${arrow} ${pct}%</div>
+      </div>`;
+    }).join('');
+
+    container.innerHTML = `<div class="market-grid">${grid}</div><div class="market-time">Updated ${now} · Yahoo Finance</div>`;
+  } catch(e) {
+    container.innerHTML = '<div class="market-loading">Unable to load — check connection</div>';
+  } finally {
+    icon.classList.remove('spinning');
+  }
+}
+
 // ── RENDER ──
 function renderAll() {
   renderTasks(); renderEvents(); renderClients();
   renderPipeline(); renderGoals(); renderNotes();
-  updateStats();
+  updateStats(); fetchMarketData(); fetchBNMData();
 }
 
 function renderEvents() {

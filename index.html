@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>FP Dashboard</title>
+<title>AdvisorMY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://apis.google.com/js/api.js"></script>
@@ -114,30 +114,57 @@ input, textarea, select { font-family: var(--font-body); color: var(--text); }
 /* ── CARDS ─────────────────────────────────────────── */
 .card {
   background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 16px;
-  box-shadow: var(--shadow); margin-bottom: 14px;
+  border-radius: var(--radius); padding: 16px 16px 14px;
+  box-shadow: var(--shadow); margin-bottom: 12px;
 }
 .card-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 12px;
 }
-.card-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); }
+.card-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); }
 .card-action { font-size: 12px; color: var(--accent); font-weight: 500; cursor: pointer; }
 
 /* ── TODAY HEADER ─────────────────────────────────────── */
-.today-hero { margin-bottom: 16px; }
-.today-greeting { font-family: var(--font-display); font-size: 26px; line-height: 1.2; color: var(--text); }
-.today-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
-
-/* ── STATS ROW ─────────────────────────────────────────── */
-.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
-.stat-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 12px 10px;
-  text-align: center;
+.today-hero {
+  background: linear-gradient(135deg, var(--accent) 0%, #1d4ed8 100%);
+  border-radius: var(--radius);
+  padding: 20px 18px 18px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
 }
-.stat-num { font-family: var(--font-display); font-size: 22px; color: var(--text); }
-.stat-label { font-size: 10px; color: var(--text3); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+.today-hero::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+}
+.today-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -20px; right: 40px;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+}
+.today-greeting { font-family: var(--font-display); font-size: 24px; line-height: 1.2; color: #fff; }
+.today-sub { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+.today-hero-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 16px; }
+.hero-stat {
+  background: rgba(255,255,255,0.12);
+  border-radius: 10px; padding: 10px 8px; text-align: center;
+  backdrop-filter: blur(4px);
+}
+.hero-stat-num { font-family: var(--font-display); font-size: 22px; color: #fff; line-height: 1; }
+.hero-stat-label { font-size: 10px; color: rgba(255,255,255,0.65); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ── STATS ROW (keep for compat) ─────────────────────────── */
+.stats-row { display: none; }
+.stat-card { display: none; }
+.stat-num {}
+.stat-label {}
 
 /* ── TASK ITEMS ─────────────────────────────────────────── */
 .task-item {
@@ -265,17 +292,8 @@ input, textarea, select { font-family: var(--font-body); color: var(--text); }
 #login-screen {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  min-height: 100vh; padding: 40px 24px; text-align: center;
+  min-height: 100vh; padding: 40px 0;
 }
-.login-logo { font-family: var(--font-display); font-size: 36px; margin-bottom: 8px; }
-.login-logo span { color: var(--accent); }
-.login-sub { font-size: 14px; color: var(--text2); margin-bottom: 40px; line-height: 1.6; }
-.login-features { text-align: left; margin-bottom: 36px; width: 100%; max-width: 320px; }
-.login-feature {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 0; font-size: 13px; color: var(--text2);
-}
-.feature-icon { font-size: 18px; }
 .btn-google {
   display: flex; align-items: center; gap: 10px;
   background: var(--accent); color: #fff;
@@ -376,33 +394,29 @@ input, textarea, select { font-family: var(--font-body); color: var(--text); }
 
 <!-- LOGIN SCREEN -->
 <div id="login-screen">
-  <div class="login-logo">FP<span>.</span>OS</div>
-  <p class="login-sub">专为财务规划师设计的<br>个人工作系统</p>
+  <div style="width:100%;max-width:360px;margin:0 auto;padding:0 24px;">
 
-  <div class="login-features">
-    <div class="login-feature"><span class="feature-icon">📅</span> Google Calendar 实时同步</div>
-    <div class="login-feature"><span class="feature-icon">👥</span> 客户跟进 & 联系人管理</div>
-    <div class="login-feature"><span class="feature-icon">📊</span> 业务 Pipeline & 目标追踪</div>
-    <div class="login-feature"><span class="feature-icon">✅</span> 每日任务 & 市场笔记</div>
-  </div>
+    <div style="margin-bottom:48px;">
+      <div style="font-family:var(--font-display);font-size:32px;color:var(--text);letter-spacing:-0.5px;">Advisor<span style="color:var(--accent)">MY</span></div>
+      <div style="font-size:14px;color:var(--text2);margin-top:6px;">Your personal command centre</div>
+    </div>
 
-  <button class="btn-google" onclick="signIn()">
-    <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#fff" d="M9 1.5C4.86 1.5 1.5 4.86 1.5 9s3.36 7.5 7.5 7.5c4.305 0 7.5-2.895 7.5-7.5 0-.495-.045-.975-.135-1.44H9v2.88h4.5c-.195 1.005-.78 1.86-1.665 2.43v2.01h2.685C16.245 13.38 17.25 11.295 17.25 9c0-.495-.045-.975-.135-1.44H9z"/><path fill="#fff" opacity=".6" d="M9 16.5C4.86 16.5 1.5 13.14 1.5 9h2.7C4.2 11.61 6.375 13.5 9 13.5c1.305 0 2.49-.45 3.42-1.185l-2.685-2.01C9.18 10.635 8.61 10.8 9 10.8c-1.89 0-3.495-1.275-4.065-2.985H2.19v2.07C3.39 14.805 6 16.5 9 16.5z"/></svg>
-    使用 Google 账号登录
-  </button>
-  <div class="btn-demo" onclick="loadDemoMode()">或使用演示数据体验 →</div>
+    <button class="btn-google" onclick="signIn()" style="width:100%;justify-content:center;border-radius:10px;padding:13px 20px;font-size:14px;">
+      <svg width="17" height="17" viewBox="0 0 18 18"><path fill="#fff" d="M9 1.5C4.86 1.5 1.5 4.86 1.5 9s3.36 7.5 7.5 7.5c4.305 0 7.5-2.895 7.5-7.5 0-.495-.045-.975-.135-1.44H9v2.88h4.5c-.195 1.005-.78 1.86-1.665 2.43v2.01h2.685C16.245 13.38 17.25 11.295 17.25 9c0-.495-.045-.975-.135-1.44H9z"/><path fill="#fff" opacity=".6" d="M9 16.5C4.86 16.5 1.5 13.14 1.5 9h2.7C4.2 11.61 6.375 13.5 9 13.5c1.305 0 2.49-.45 3.42-1.185l-2.685-2.01C9.18 10.635 8.61 10.8 9 10.8c-1.89 0-3.495-1.275-4.065-2.985H2.19v2.07C3.39 14.805 6 16.5 9 16.5z"/></svg>
+      Continue with Google
+    </button>
 
-  <div class="config-note">
-    <strong>⚙️ 首次使用需配置</strong><br>
-    将文件顶部 <code>CLIENT_ID</code> 替换为你的 Google OAuth Client ID。
-    前往 <code>console.cloud.google.com</code> 创建凭证并启用 Calendar、People、Sheets API。
+    <div style="text-align:center;margin-top:14px;">
+      <span class="btn-demo" onclick="loadDemoMode()" style="font-size:12px;color:var(--text3)">Try demo instead</span>
+    </div>
+
   </div>
 </div>
 
 <!-- MAIN APP -->
 <div id="app" style="display:none">
   <div class="top-bar">
-    <div class="logo">FP<span>.</span>OS</div>
+    <div class="logo">Advisor<span>MY</span></div>
     <div class="top-right">
       <div class="date-chip" id="top-date"></div>
       <div class="avatar-btn" id="user-avatar" onclick="showProfile()">FP</div>
@@ -424,28 +438,33 @@ input, textarea, select { font-family: var(--font-body); color: var(--text); }
       <div class="today-hero">
         <div class="today-greeting" id="greeting-text">Good morning</div>
         <div class="today-sub" id="greeting-sub">Loading your day...</div>
+        <div class="today-hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-num" id="stat-tasks">0</div>
+            <div class="hero-stat-label">Tasks</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-num" id="stat-events">0</div>
+            <div class="hero-stat-label">Meetings</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-num" id="stat-followup">0</div>
+            <div class="hero-stat-label">Follow-ups</div>
+          </div>
+        </div>
       </div>
 
       <div class="stats-row">
-        <div class="stat-card">
-          <div class="stat-num" id="stat-tasks">0</div>
-          <div class="stat-label">Tasks left</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" id="stat-events">0</div>
-          <div class="stat-label">Meetings</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num" id="stat-followup">0</div>
-          <div class="stat-label">Follow-ups</div>
-        </div>
+        <div class="stat-card"><div class="stat-num" id="stat-tasks-hidden">0</div><div class="stat-label">Tasks</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-events-hidden">0</div><div class="stat-label">Meetings</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-followup-hidden">0</div><div class="stat-label">Follow-ups</div></div>
       </div>
 
 
       <!-- Market Data -->
       <div class="card" id="market-card">
         <div class="card-header">
-          <div class="card-title">📊 Market Pulse</div>
+          <div class="card-title">Market Pulse</div>
           <div class="sync-btn" onclick="fetchMarketData()">
             <span id="market-sync-icon">↻</span> Refresh
           </div>
@@ -459,7 +478,7 @@ input, textarea, select { font-family: var(--font-body); color: var(--text); }
       <!-- BNM Data -->
       <div class="card" id="bnm-card">
         <div class="card-header">
-          <div class="card-title">🏦 BNM · Malaysia</div>
+          <div class="card-title">BNM · Malaysia</div>
           <div class="sync-btn" onclick="fetchBNMData()">
             <span id="bnm-sync-icon">↻</span> Refresh
           </div>
@@ -472,7 +491,7 @@ input, textarea, select { font-family: var(--font-body); color: var(--text); }
       <!-- Calendar Events -->
       <div class="card">
         <div class="card-header">
-          <div class="card-title">📅 Today's Schedule</div>
+          <div class="card-title">Today's Schedule</div>
           <div class="sync-btn" onclick="syncCalendar()">
             <span id="sync-icon">↻</span> Sync
           </div>
@@ -485,7 +504,7 @@ input, textarea, select { font-family: var(--font-body); color: var(--text); }
       <!-- Tasks -->
       <div class="card">
         <div class="card-header">
-          <div class="card-title">✅ Today's Tasks</div>
+          <div class="card-title">Today's Tasks</div>
           <div class="card-action" onclick="openAddTask()">+ Add</div>
         </div>
         <div id="tasks-list"></div>
@@ -672,14 +691,47 @@ function gisInit() {
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
+    prompt: '',
     callback: async (resp) => {
       if (resp.error) { console.error(resp); return; }
+      // Save token expiry
+      const expiry = Date.now() + (resp.expires_in * 1000);
+      localStorage.setItem('fp-token-expiry', expiry);
       await fetchUserInfo();
       showApp();
       fetchCalendarEvents();
     },
   });
   gisInited = true;
+  tryAutoLogin();
+}
+
+function tryAutoLogin() {
+  const savedUser = localStorage.getItem('fp-user');
+  const expiry = parseInt(localStorage.getItem('fp-token-expiry') || '0');
+  const stillValid = expiry > Date.now() + 60000;
+
+  if (savedUser) {
+    try {
+      state.user = JSON.parse(savedUser);
+      const initials = state.user.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+      document.getElementById('user-avatar').textContent = initials;
+    } catch(e) {}
+  }
+
+  if (savedUser && stillValid) {
+    // Token still valid — go straight to app
+    showApp();
+    fetchCalendarEvents();
+    return;
+  }
+
+  if (savedUser && !stillValid) {
+    // Token expired — silently refresh without showing consent screen
+    tokenClient.requestAccessToken({ prompt: '' });
+    return;
+  }
+  // No saved user — show login screen (do nothing, login screen already showing)
 }
 
 async function fetchUserInfo() {
@@ -699,11 +751,18 @@ async function fetchUserInfo() {
 
 function signIn() {
   if (!gisInited) { alert('页面还在初始化，请稍等1秒再试。'); return; }
-  const prompt = gapi.client.getToken() === null ? 'consent' : '';
-  tokenClient.requestAccessToken({ prompt });
+  tokenClient.requestAccessToken({ prompt: 'consent' });
 }
 
 function handleSignIn() {}
+
+function signOut() {
+  google.accounts.oauth2.revoke(gapi.client.getToken()?.access_token || '', () => {});
+  gapi.client.setToken(null);
+  localStorage.removeItem('fp-user');
+  localStorage.removeItem('fp-token-expiry');
+  location.reload();
+}
 
 function showApp() {
   document.getElementById('login-screen').style.display = 'none';
@@ -750,7 +809,7 @@ function loadDemoMode() {
     { time: '14:00', name: 'Lee Family Trust — Proposal Presentation', location: 'Client Office, KL', color: '' },
     { time: '16:30', name: 'CPD Webinar: Estate Planning', location: 'Online', color: 'green' },
   ];
-  document.getElementById('user-avatar').textContent = 'FP';
+  document.getElementById('user-avatar').textContent = 'JL';
   showApp();
 }
 
@@ -1141,8 +1200,12 @@ function updateGreeting() {
 }
 
 function showProfile() {
-  if (state.user) alert(`${state.user.name}\n${state.user.email}`);
-  else alert('Demo mode — connect Google account for full features.');
+  if (state.user) {
+    const action = confirm(`${state.user.name}\n${state.user.email}\n\n登出账号？`);
+    if (action) signOut();
+  } else {
+    alert('Demo mode — connect Google account for full features.');
+  }
 }
 
 function saveToStorage() {

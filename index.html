@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://apis.google.com/js/api.js"></script>
+<script src="https://accounts.google.com/gsi/client"></script>
 <style>
 /* ── THEME ─────────────────────────────────────────── */
 :root {
@@ -602,9 +603,13 @@ input, textarea, select { font-family: var(--font-body); color: var(--text); }
 </div>
 
 <script>
-// ── CONFIG ── Replace with your Google OAuth Client ID
+// ── CONFIG ──
 const CLIENT_ID = '226999056912-hlj6sp9a1mnip4gna0307uq3a2e8dv5s.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/contacts.readonly';
+
+let tokenClient;
+let gapiInited = false;
+let gisInited = false;
 
 // ── STATE ──
 let state = {
@@ -623,41 +628,54 @@ function init() {
   updateTopDate();
   updateGreeting();
   loadFromStorage();
+  gapiInit();
+  gisInit();
+}
 
-  if (CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE') return;
-
-  gapi.load('client:auth2', () => {
-    gapi.client.init({
-      clientId: CLIENT_ID,
-      scope: SCOPES,
-      discoveryDocs: [
-        'https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest',
-        'https://people.googleapis.com/discovery/v1/apis/people/v1/rest'
-      ]
-    }).then(() => {
-      if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
-        handleSignIn();
-      }
-    });
+function gapiInit() {
+  gapi.load('client', async () => {
+    await gapi.client.init({});
+    await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');
+    gapiInited = true;
   });
 }
 
-function signIn() {
-  if (CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE') {
-    alert('请先在文件顶部配置你的 Google Client ID。\n\n前往 console.cloud.google.com 获取。');
-    return;
-  }
-  gapi.auth2.getAuthInstance().signIn().then(handleSignIn);
+function gisInit() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: async (resp) => {
+      if (resp.error) { console.error(resp); return; }
+      await fetchUserInfo();
+      showApp();
+      fetchCalendarEvents();
+    },
+  });
+  gisInited = true;
 }
 
-function handleSignIn() {
-  const profile = gapi.auth2.getAuthInstance().currentUser.get().getBasicProfile();
-  state.user = { name: profile.getName(), email: profile.getEmail(), avatar: profile.getImageUrl() };
-  const initials = profile.getName().split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-  document.getElementById('user-avatar').textContent = initials;
-  showApp();
-  fetchCalendarEvents();
+async function fetchUserInfo() {
+  try {
+    const token = gapi.client.getToken();
+    if (!token) return;
+    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: 'Bearer ' + token.access_token }
+    });
+    const info = await res.json();
+    state.user = { name: info.name || info.email, email: info.email };
+    localStorage.setItem('fp-user', JSON.stringify(state.user));
+    const initials = state.user.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+    document.getElementById('user-avatar').textContent = initials;
+  } catch(e) { console.error(e); }
 }
+
+function signIn() {
+  if (!gisInited) { alert('页面还在初始化，请稍等1秒再试。'); return; }
+  const prompt = gapi.client.getToken() === null ? 'consent' : '';
+  tokenClient.requestAccessToken({ prompt });
+}
+
+function handleSignIn() {}
 
 function showApp() {
   document.getElementById('login-screen').style.display = 'none';

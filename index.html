@@ -294,7 +294,7 @@ a{text-decoration:none;color:inherit}
 .bottom-nav{
   position:fixed;bottom:0;left:0;right:0;z-index:100;
   display:flex;align-items:flex-end;
-  padding:8px 12px env(safe-area-inset-bottom,16px);
+  padding:8px 20px calc(env(safe-area-inset-bottom,20px) + 8px);
   background:transparent;
   pointer-events:none;
 }
@@ -316,16 +316,16 @@ a{text-decoration:none;color:inherit}
 }
 .nav-glass-pill{
   position:absolute;
-  height:52px;
-  border-radius:16px;
-  background:rgba(59,130,246,0.15);
-  border:0.5px solid rgba(59,130,246,0.25);
+  height:44px;
+  border-radius:14px;
+  background:rgba(59,130,246,0.13);
+  border:0.5px solid rgba(59,130,246,0.22);
   backdrop-filter:blur(12px) saturate(160%);
   -webkit-backdrop-filter:blur(12px) saturate(160%);
-  box-shadow:0 2px 16px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.25);
+  box-shadow:0 2px 12px rgba(59,130,246,0.12), inset 0 1px 0 rgba(255,255,255,0.22);
   transition:left 0.35s cubic-bezier(0.34,1.56,0.64,1), width 0.35s cubic-bezier(0.34,1.56,0.64,1);
   pointer-events:none;
-  top:0;
+  top:4px;
 }
 @media(prefers-color-scheme:dark){
   .nav-glass-pill{
@@ -336,7 +336,7 @@ a{text-decoration:none;color:inherit}
 }
 .nav-item{
   flex:1;display:flex;flex-direction:column;align-items:center;
-  gap:2px;padding:8px 4px;cursor:pointer;
+  gap:2px;padding:6px 4px;cursor:pointer;
   touch-action:manipulation;min-height:52px;justify-content:center;
   position:relative;z-index:2;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
 }
@@ -347,6 +347,34 @@ a{text-decoration:none;color:inherit}
 .nav-item.active .nav-label{color:var(--blue)}
 .nav-dot{display:none}
 
+
+/* ── SWIPE TO REVEAL ── */
+.swipe-container{position:relative;overflow:hidden;border-radius:var(--radius-sm);margin-bottom:8px}
+.swipe-container .swipe-actions{
+  position:absolute;right:0;top:0;bottom:0;
+  display:flex;align-items:stretch;
+  transform:translateX(100%);
+  transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  z-index:1;
+}
+.swipe-container.swiped .swipe-actions{transform:translateX(0)}
+.swipe-inner{
+  position:relative;z-index:2;
+  transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  background:var(--card);
+}
+.swipe-container.swiped .swipe-inner{transform:translateX(-152px)}
+.swipe-btn{
+  width:76px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:4px;cursor:pointer;
+  font-size:11px;font-weight:700;border:none;
+  touch-action:manipulation;
+}
+.swipe-btn-edit{background:var(--blue);color:#fff}
+.swipe-btn-delete{background:var(--red);color:#fff}
+.swipe-btn-icon{font-size:18px;line-height:1}
+/* Tasks swipe - smaller width */
+.swipe-container.task-swipe.swiped .swipe-inner{transform:translateX(-152px)}
 .spinning{animation:spin 1s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -886,15 +914,17 @@ function renderEvents(){
 function renderTasks(){
   const el=document.getElementById('tasks-list');
   if(!state.tasks.length){el.innerHTML='<div class="empty-state" style="padding:20px">No tasks — tap + Add</div>';updateHero();return;}
-  el.innerHTML=state.tasks.map(t=>`<div class="task-item ${t.done?'done':''}">
-    <div class="task-check ${t.done?'checked':''}" onclick="toggleTask(${t.id})"></div>
-    <div class="task-text">${t.text}</div>
-    <div class="task-tag tag-${t.tag}">${t.tag}</div>
-    <div style="display:flex;gap:6px;margin-left:4px">
-      <div style="font-size:13px;color:var(--blue);opacity:0.7;cursor:pointer" onclick="openEditTask(${t.id})">✎</div>
-      <div style="font-size:13px;color:var(--text3);cursor:pointer" onclick="deleteTask(${t.id})">✕</div>
+  el.innerHTML=state.tasks.map(t=>`<div class="swipe-container task-swipe" style="border-radius:0;margin-bottom:0">
+    <div class="swipe-actions">
+      <button class="swipe-btn swipe-btn-edit" onclick="openEditTask(${t.id})"><div class="swipe-btn-icon">✎</div>Edit</button>
+      <button class="swipe-btn swipe-btn-delete" onclick="deleteTask(${t.id})"><div class="swipe-btn-icon">🗑</div>Delete</button>
     </div>
-  </div>`).join('');updateHero();
+    <div class="swipe-inner task-item ${t.done?'done':''}" style="margin-bottom:0;border-radius:0">
+      <div class="task-check ${t.done?'checked':''}" onclick="toggleTask(${t.id})"></div>
+      <div class="task-text">${t.text}</div>
+      <div class="task-tag tag-${t.tag}">${t.tag}</div>
+    </div>
+  </div>`).join('');updateHero();setTimeout(initAllSwipes,50);
 }
 
 function renderReminders(){
@@ -907,21 +937,22 @@ function renderReminders(){
     const days=Math.ceil((new Date(r.date)-new Date())/86400000);
     const dateLabel=days<0?`${Math.abs(days)}d overdue`:days===0?'Today':days===1?'Tomorrow':`In ${days}d`;
     const dateCls=days<0||days===0?'date-urgent':days<=7?'date-soon':'date-ok';
-    const displayType=r.customType||r.type;
     const typeIcon=icons[r.type]||'⭐';
-    return`<div class="reminder-item">
-      <div class="reminder-icon ${iconClass[r.type]||'ri-custom'}">${typeIcon}</div>
-      <div class="reminder-body">
-        <div class="reminder-title">${r.title}</div>
-        <div class="reminder-sub">${new Date(r.date).toLocaleDateString('en-MY',{day:'numeric',month:'short',year:'numeric'})}${r.customType?' · '+r.customType:''}${r.note?' · '+r.note:''}</div>
+    return`<div class="swipe-container">
+      <div class="swipe-actions">
+        <button class="swipe-btn swipe-btn-edit" onclick="openEditReminder(${r.id})"><div class="swipe-btn-icon">✎</div>Edit</button>
+        <button class="swipe-btn swipe-btn-delete" onclick="deleteReminder(${r.id})"><div class="swipe-btn-icon">🗑</div>Delete</button>
       </div>
-      <div class="reminder-date ${dateCls}">${dateLabel}</div>
-      <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
-        <div class="reminder-del" style="color:var(--blue);opacity:0.7" onclick="openEditReminder(${r.id})">✎</div>
-        <div class="reminder-del" onclick="deleteReminder(${r.id})">✕</div>
+      <div class="swipe-inner reminder-item" style="margin-bottom:0;border-radius:var(--radius-sm)">
+        <div class="reminder-icon ${iconClass[r.type]||'ri-custom'}">${typeIcon}</div>
+        <div class="reminder-body">
+          <div class="reminder-title">${r.title}</div>
+          <div class="reminder-sub">${new Date(r.date).toLocaleDateString('en-MY',{day:'numeric',month:'short',year:'numeric'})}${r.customType?' · '+r.customType:''}${r.note?' · '+r.note:''}</div>
+        </div>
+        <div class="reminder-date ${dateCls}">${dateLabel}</div>
       </div>
     </div>`;
-  }).join('');updateHero();
+  }).join('');updateHero();setTimeout(initAllSwipes,50);
 }
 
 function renderReceivables(){
@@ -988,17 +1019,19 @@ function renderNotes(){
   const filtered=currentNoteFilter==='all'?state.notes:state.notes.filter(n=>n.type===currentNoteFilter);
   if(!filtered.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">📝</div>No notes yet</div>';return;}
   const typeLabel={market:'📊 Market',meeting:'🤝 Meeting',idea:'💡 Idea',general:'📋 General'};
-  el.innerHTML=filtered.map(n=>`<div class="note-item">
-    <div class="note-header">
-      <div class="note-type nt-${n.type}">${typeLabel[n.type]||n.type}</div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <div class="note-date">${n.date}</div>
-        <div class="note-del" style="color:var(--blue)" onclick="openEditNote(${n.id})">✎</div>
-        <div class="note-del" onclick="deleteNote(${n.id})">✕</div>
-      </div>
+  el.innerHTML=filtered.map(n=>`<div class="swipe-container">
+    <div class="swipe-actions">
+      <button class="swipe-btn swipe-btn-edit" onclick="openEditNote(${n.id})"><div class="swipe-btn-icon">✎</div>Edit</button>
+      <button class="swipe-btn swipe-btn-delete" onclick="deleteNote(${n.id})"><div class="swipe-btn-icon">🗑</div>Delete</button>
     </div>
-    <div class="note-text">${n.text}</div>
-  </div>`).join('');
+    <div class="swipe-inner note-item" style="margin-bottom:0;border-radius:var(--radius-sm)">
+      <div class="note-header">
+        <div class="note-type nt-${n.type}">${typeLabel[n.type]||n.type}</div>
+        <div class="note-date">${n.date}</div>
+      </div>
+      <div class="note-text">${n.text}</div>
+    </div>
+  </div>`).join('');setTimeout(initAllSwipes,50);
 }
 
 function filterNotes(type,el){
@@ -1078,7 +1111,7 @@ function moveGlassPill(tab){
   if(!pill||!activeEl||!row)return;
   const rowRect=row.getBoundingClientRect();
   const elRect=activeEl.getBoundingClientRect();
-  const padding=6;
+  const padding=2;
   pill.style.left=(elRect.left-rowRect.left-padding)+'px';
   pill.style.width=(elRect.width+padding*2)+'px';
 }
@@ -1235,6 +1268,87 @@ function saveEditEvent(){
 function deleteEvent(idx){calEvents.splice(idx,1);renderCalendar();}
 
 // ── ADD REMINDER with custom type ──
+
+// ── SWIPE TO REVEAL (iOS Mail style) ──
+let activeSwipe = null;
+
+function initSwipe(container){
+  const inner = container.querySelector('.swipe-inner');
+  if(!inner) return;
+  let startX=0, startY=0, dx=0, isDragging=false, isHorizontal=null;
+
+  inner.addEventListener('touchstart', e=>{
+    // Close other open swipes
+    if(activeSwipe && activeSwipe !== container){
+      activeSwipe.classList.remove('swiped');
+      activeSwipe = null;
+    }
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    dx = 0; isDragging = true; isHorizontal = null;
+  }, {passive:true});
+
+  inner.addEventListener('touchmove', e=>{
+    if(!isDragging) return;
+    const curX = e.touches[0].clientX;
+    const curY = e.touches[0].clientY;
+    dx = curX - startX;
+    const dy = curY - startY;
+
+    if(isHorizontal === null){
+      isHorizontal = Math.abs(dx) > Math.abs(dy);
+    }
+    if(!isHorizontal) return;
+
+    e.preventDefault();
+    const isSwiped = container.classList.contains('swiped');
+    const offset = isSwiped ? Math.min(0, dx) : Math.min(0, dx);
+    const base = isSwiped ? -152 : 0;
+    const clamped = Math.max(-152, Math.min(0, base + dx));
+    inner.style.transition = 'none';
+    inner.style.transform = `translateX(${clamped}px)`;
+    const actions = container.querySelector('.swipe-actions');
+    if(actions){
+      actions.style.transition = 'none';
+      actions.style.transform = `translateX(${100 + (clamped/152)*100}%)`;
+    }
+  }, {passive:false});
+
+  inner.addEventListener('touchend', e=>{
+    if(!isDragging || !isHorizontal){isDragging=false;return;}
+    isDragging = false;
+    inner.style.transition = '';
+    const actions = container.querySelector('.swipe-actions');
+    if(actions) actions.style.transition = '';
+
+    const isSwiped = container.classList.contains('swiped');
+    const threshold = 60;
+
+    if(!isSwiped && dx < -threshold){
+      container.classList.add('swiped');
+      activeSwipe = container;
+    } else if(isSwiped && dx > threshold){
+      container.classList.remove('swiped');
+      activeSwipe = null;
+    } else {
+      // snap back
+      inner.style.transform = isSwiped ? 'translateX(-152px)' : 'translateX(0)';
+      if(actions) actions.style.transform = isSwiped ? 'translateX(0)' : 'translateX(100%)';
+    }
+  }, {passive:true});
+}
+
+// Close swipe when tapping elsewhere
+document.addEventListener('touchstart', e=>{
+  if(activeSwipe && !activeSwipe.contains(e.target)){
+    activeSwipe.classList.remove('swiped');
+    activeSwipe = null;
+  }
+}, {passive:true});
+
+function initAllSwipes(){
+  document.querySelectorAll('.swipe-container').forEach(initSwipe);
+}
 // ── STORAGE ──
 function saveToStorage(){try{localStorage.setItem('fp-state',JSON.stringify({tasks:state.tasks,reminders:state.reminders,receivables:state.receivables,notes:state.notes}));}catch(e){}}
 function loadFromStorage(){try{const s=JSON.parse(localStorage.getItem('fp-state')||'{}');['tasks','reminders','receivables','notes'].forEach(k=>{if(s[k])state[k]=s[k];});}catch(e){}}

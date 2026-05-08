@@ -290,14 +290,62 @@ a{text-decoration:none;color:inherit}
 .btn-secondary{padding:13px 20px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--text2);font-weight:500}
 .btn-secondary:hover{background:var(--bg)}
 
-/* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--card);border-top:1px solid var(--border);display:flex;padding:8px 0 env(safe-area-inset-bottom,12px)}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;cursor:pointer;touch-action:manipulation;min-height:52px;justify-content:center}
-.nav-icon{font-size:22px;line-height:1}
-.nav-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.02em}
+/* BOTTOM NAV - Liquid Glass */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  display:flex;align-items:flex-end;
+  padding:8px 12px env(safe-area-inset-bottom,16px);
+  background:transparent;
+  pointer-events:none;
+}
+.bottom-nav::before{
+  content:'';position:absolute;inset:0;
+  background:var(--card);
+  opacity:0.75;
+  backdrop-filter:blur(24px) saturate(180%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  border-top:0.5px solid rgba(255,255,255,0.2);
+  pointer-events:none;
+}
+@media(prefers-color-scheme:dark){
+  .bottom-nav::before{background:rgba(15,20,35,0.8)}
+}
+.nav-items-row{
+  display:flex;width:100%;position:relative;
+  pointer-events:all;z-index:1;
+}
+.nav-glass-pill{
+  position:absolute;
+  height:52px;
+  border-radius:16px;
+  background:rgba(59,130,246,0.15);
+  border:0.5px solid rgba(59,130,246,0.25);
+  backdrop-filter:blur(12px) saturate(160%);
+  -webkit-backdrop-filter:blur(12px) saturate(160%);
+  box-shadow:0 2px 16px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.25);
+  transition:left 0.35s cubic-bezier(0.34,1.56,0.64,1), width 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events:none;
+  top:0;
+}
+@media(prefers-color-scheme:dark){
+  .nav-glass-pill{
+    background:rgba(59,130,246,0.2);
+    border:0.5px solid rgba(96,165,250,0.3);
+    box-shadow:0 2px 20px rgba(59,130,246,0.2), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  gap:2px;padding:8px 4px;cursor:pointer;
+  touch-action:manipulation;min-height:52px;justify-content:center;
+  position:relative;z-index:2;transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.nav-item:active{transform:scale(0.88)}
+.nav-icon{font-size:21px;line-height:1;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+.nav-item.active .nav-icon{transform:scale(1.12)}
+.nav-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.02em;transition:color 0.2s}
 .nav-item.active .nav-label{color:var(--blue)}
-.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--blue);margin:0 auto;opacity:0;transition:opacity 0.2s}
-.nav-item.active .nav-dot{opacity:1}
+.nav-dot{display:none}
 
 .spinning{animation:spin 1s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -471,11 +519,14 @@ a{text-decoration:none;color:inherit}
   </div><!-- /main -->
 
   <div class="bottom-nav">
-    <div class="nav-item active" onclick="switchTab('today')" id="nav-today"><div class="nav-icon">🏠</div><div class="nav-label">Today</div><div class="nav-dot"></div></div>
-    <div class="nav-item" onclick="switchTab('calendar')" id="nav-calendar"><div class="nav-icon">📅</div><div class="nav-label">Calendar</div><div class="nav-dot"></div></div>
-    <div class="nav-item" onclick="switchTab('track')" id="nav-track"><div class="nav-icon">🗂</div><div class="nav-label">Track</div><div class="nav-dot"></div></div>
-    <div class="nav-item" onclick="switchTab('contacts')" id="nav-contacts"><div class="nav-icon">👥</div><div class="nav-label">Contacts</div><div class="nav-dot"></div></div>
-    <div class="nav-item" onclick="switchTab('notes')" id="nav-notes"><div class="nav-icon">📝</div><div class="nav-label">Notes</div><div class="nav-dot"></div></div>
+    <div class="nav-items-row" id="nav-items-row">
+      <div class="nav-glass-pill" id="nav-glass-pill"></div>
+      <div class="nav-item active" onclick="switchTab('today')" id="nav-today"><div class="nav-icon">🏠</div><div class="nav-label">Today</div></div>
+      <div class="nav-item" onclick="switchTab('calendar')" id="nav-calendar"><div class="nav-icon">📅</div><div class="nav-label">Calendar</div></div>
+      <div class="nav-item" onclick="switchTab('track')" id="nav-track"><div class="nav-icon">🗂</div><div class="nav-label">Track</div></div>
+      <div class="nav-item" onclick="switchTab('contacts')" id="nav-contacts"><div class="nav-icon">👥</div><div class="nav-label">Contacts</div></div>
+      <div class="nav-item" onclick="switchTab('notes')" id="nav-notes"><div class="nav-icon">📝</div><div class="nav-label">Notes</div></div>
+    </div>
   </div>
 </div>
 
@@ -621,7 +672,7 @@ function signOut(){
 function showApp(){
   document.getElementById('login-screen').style.display='none';
   const app=document.getElementById('app');app.style.display='flex';
-  renderAll();fetchMarket();fetchBNM();renderCalendar();
+  renderAll();fetchMarket();fetchBNM();renderCalendar();initGlassPill();
 }
 function showProfile(){if(state.user){if(confirm(`${state.user.name}\n${state.user.email}\n\nSign out?`))signOut();}}
 
@@ -1015,8 +1066,26 @@ function switchTab(tab){
   document.querySelectorAll('.nav-item').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.getElementById('nav-'+tab).classList.add('active');
+  moveGlassPill(tab);
   if(tab==='calendar')renderCalendar();
   if(tab==='contacts'&&allContacts.length===0&&!state.isDemo)fetchContacts();
+}
+
+function moveGlassPill(tab){
+  const pill=document.getElementById('nav-glass-pill');
+  const activeEl=document.getElementById('nav-'+tab);
+  const row=document.getElementById('nav-items-row');
+  if(!pill||!activeEl||!row)return;
+  const rowRect=row.getBoundingClientRect();
+  const elRect=activeEl.getBoundingClientRect();
+  const padding=6;
+  pill.style.left=(elRect.left-rowRect.left-padding)+'px';
+  pill.style.width=(elRect.width+padding*2)+'px';
+}
+
+// Init glass pill position on load
+function initGlassPill(){
+  setTimeout(()=>moveGlassPill('today'),100);
 }
 
 // ── DEMO ──
@@ -1169,6 +1238,24 @@ function deleteEvent(idx){calEvents.splice(idx,1);renderCalendar();}
 // ── STORAGE ──
 function saveToStorage(){try{localStorage.setItem('fp-state',JSON.stringify({tasks:state.tasks,reminders:state.reminders,receivables:state.receivables,notes:state.notes}));}catch(e){}}
 function loadFromStorage(){try{const s=JSON.parse(localStorage.getItem('fp-state')||'{}');['tasks','reminders','receivables','notes'].forEach(k=>{if(s[k])state[k]=s[k];});}catch(e){}}
+
+
+// ── iOS STATUS BAR TAP TO SCROLL TOP ──
+(function(){
+  let lastTap = 0;
+  document.addEventListener('touchstart', function(e){
+    // Check if tap is in top 50px (status bar area)
+    const touch = e.touches[0];
+    if(touch.clientY > 50) return;
+    const now = Date.now();
+    // Single tap on status bar area
+    if(now - lastTap < 500) return; // ignore double tap
+    lastTap = now;
+    // Scroll active section to top
+    const main = document.querySelector('.main');
+    if(main) main.scrollTo({top:0, behavior:'smooth'});
+  }, {passive:true});
+})();
 
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
 init();

@@ -511,86 +511,91 @@ async function fetchMarketData(){
 
 async function fetchBNMData(){
   const icon=document.getElementById('bnm-icon');icon.classList.add('spinning');
-  const flags={USD:'🇺🇸',SGD:'🇸🇬',GBP:'🇬🇧',EUR:'🇪🇺',AUD:'🇦🇺'};
-  const pairs=['USD','SGD','GBP','EUR','AUD'];
 
-  async function bnmFetch(endpoint){
-    // Try direct first, then proxy fallbacks
-    const base='https://api.bnm.gov.my/public';
-    const headers={'Accept':'application/vnd.BNM.API.v1+json'};
-    const proxies=[
-      `https://api.allorigins.win/get?url=${encodeURIComponent(base+endpoint)}`,
-      `https://corsproxy.io/?${encodeURIComponent(base+endpoint)}`,
-      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(base+endpoint)}`,
-    ];
-    for(const proxy of proxies){
+  // Fetch OPR + CPI via Claude API (web search enabled)
+  async function fetchMacroData(){
+    try{
+      const res=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:300,
+          tools:[{type:'web_search_20250305',name:'web_search'}],
+          system:'You are a financial data assistant. Always respond with ONLY a JSON object, no markdown, no explanation.',
+          messages:[{role:'user',content:'Search for the current Malaysia OPR rate and latest CPI inflation rate. Return ONLY this JSON: {"opr":"X.XX%","opr_date":"Month YYYY","cpi":"X.X%","cpi_date":"Month YYYY"}'}]
+        })
+      });
+      const data=await res.json();
+      const text=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+      const clean=text.replace(/```json|```/g,'').trim();
+      return JSON.parse(clean);
+    }catch(e){return null;}
+  }
+
+  // Fetch FX from Yahoo Finance
+  const fxPairs=[
+    {sym:'MYR=X',   label:'USD/MYR', flag:'🇺🇸'},
+    {sym:'SGDMYR=X',label:'SGD/MYR', flag:'🇸🇬'},
+    {sym:'GBPMYR=X',label:'GBP/MYR', flag:'🇬🇧'},
+    {sym:'EURMYR=X',label:'EUR/MYR', flag:'🇪🇺'},
+    {sym:'AUDMYR=X',label:'AUD/MYR', flag:'🇦🇺'},
+  ];
+
+  const [macro, fxResults] = await Promise.all([
+    fetchMacroData(),
+    Promise.all(fxPairs.map(async p=>{
       try{
-        const r=await fetch(proxy,{headers});
-        if(!r.ok)continue;
-        const raw=await r.json();
-        // allorigins wraps in {contents: "..."}
-        const text=raw.contents||raw;
-        const parsed=typeof text==='string'?JSON.parse(text):text;
-        if(parsed&&(parsed.data!==undefined||parsed.rate!==undefined))return parsed;
-      }catch(e){continue;}
-    }
-    return null;
+        const url=`https://query1.finance.yahoo.com/v8/finance/chart/${p.sym}?interval=1d&range=1d`;
+        const r=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+        const d=await r.json();
+        const meta=JSON.parse(d.contents).chart.result[0].meta;
+        const rate=meta.regularMarketPrice;
+        const prev=meta.previousClose||meta.chartPreviousClose;
+        return{...p,rate,chg:((rate-prev)/prev*100),ok:true};
+      }catch(e){return{...p,ok:false};}
+    }))
+  ]);
+
+  // Render OPR
+  if(macro&&macro.opr){
+    document.getElementById('bnm-opr').textContent=macro.opr;
+    document.getElementById('bnm-opr-sub').textContent='Eff. '+macro.opr_date;
+  }else{
+    document.getElementById('bnm-opr').textContent='—';
+    document.getElementById('bnm-opr-sub').textContent='Unable to load';
   }
 
-  try{
-    const [oprData,fxData,cpiData]=await Promise.all([
-      bnmFetch('/opr'),
-      bnmFetch('/exchange-rate'),
-      bnmFetch('/consumer-price-index'),
-    ]);
-
-    // OPR
-    if(oprData){
-      const l=Array.isArray(oprData.data)?oprData.data[0]:oprData.data;
-      if(l&&l.rate){
-        document.getElementById('bnm-opr').textContent=parseFloat(l.rate).toFixed(2)+'%';
-        document.getElementById('bnm-opr-sub').textContent='Eff. '+(l.date||l.effective_date||'');
-      }
-    }
-
-    // CPI
-    if(cpiData){
-      const l=Array.isArray(cpiData.data)?cpiData.data[0]:cpiData.data;
-      if(l){
-        const v=l.annual_change_pct||l.change||l.value||null;
-        if(v!==null){
-          document.getElementById('bnm-cpi').textContent=parseFloat(v).toFixed(1)+'%';
-          document.getElementById('bnm-cpi-sub').textContent=l.date||l.period||'Annual change';
-        }
-      }
-    }
-
-    // FX
-    const fxEl=document.getElementById('fx-table');
-    if(fxData){
-      const rates=(fxData.data||[]).filter(r=>pairs.includes(r.currency_code));
-      if(rates.length){
-        fxEl.innerHTML=rates.map(r=>{
-          const sell=r.sell_rate?parseFloat(r.sell_rate).toFixed(4):'—';
-          const buy=r.buying_rate?parseFloat(r.buying_rate).toFixed(4):'—';
-          return`<div class="fx-row">
-            <div class="fx-pair"><span class="fx-flag">${flags[r.currency_code]||''}</span>${r.currency_code}/MYR</div>
-            <div class="fx-rates"><div class="fx-sell">${sell}</div><div class="fx-buy">Buy ${buy}</div></div>
-          </div>`;
-        }).join('');
-      }else{
-        // Fallback: hardcode known OPR and show static notice
-        fxEl.innerHTML='<div class="empty-state" style="padding:8px 0;font-size:12px;color:var(--text3)">FX data temporarily unavailable</div>';
-      }
-    }else{
-      document.getElementById('fx-table').innerHTML='<div class="empty-state" style="padding:8px 0;font-size:12px;color:var(--text3)">FX data temporarily unavailable</div>';
-    }
-
-    document.getElementById('bnm-updated').textContent='Updated '+new Date().toLocaleTimeString('en-MY',{hour:'2-digit',minute:'2-digit'})+' · Bank Negara Malaysia';
-  }catch(e){
-    console.error('BNM fetch error:',e);
-    document.getElementById('bnm-updated').textContent='Unable to load BNM data';
+  // Render CPI
+  if(macro&&macro.cpi){
+    document.getElementById('bnm-cpi').textContent=macro.cpi;
+    document.getElementById('bnm-cpi-sub').textContent=macro.cpi_date+' · Annual';
+  }else{
+    document.getElementById('bnm-cpi').textContent='—';
+    document.getElementById('bnm-cpi-sub').textContent='Unable to load';
   }
+
+  // Render FX
+  const fxEl=document.getElementById('fx-table');
+  if(fxResults.some(r=>r.ok)){
+    fxEl.innerHTML=fxResults.map(p=>{
+      if(!p.ok)return`<div class="fx-row"><div class="fx-pair"><span class="fx-flag">${p.flag}</span>${p.label}</div><div class="fx-rates"><div class="fx-sell">—</div></div></div>`;
+      const cls=p.chg>0?'style="color:var(--green)"':p.chg<0?'style="color:var(--red)"':'';
+      const arrow=p.chg>0?'▲':p.chg<0?'▼':'';
+      return`<div class="fx-row">
+        <div class="fx-pair"><span class="fx-flag">${p.flag}</span>${p.label}</div>
+        <div class="fx-rates">
+          <div class="fx-sell">${p.rate.toFixed(4)}</div>
+          <div class="fx-buy" ${cls}>${arrow} ${Math.abs(p.chg).toFixed(2)}%</div>
+        </div>
+      </div>`;
+    }).join('');
+  }else{
+    fxEl.innerHTML='<div class="empty-state" style="padding:8px 0;font-size:12px;color:var(--text3)">FX temporarily unavailable</div>';
+  }
+
+  const now=new Date().toLocaleTimeString('en-MY',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('bnm-updated').textContent=`Updated ${now} · FX: Yahoo Finance · OPR/CPI: Live search`;
   icon.classList.remove('spinning');
 }
 

@@ -290,8 +290,20 @@ input,textarea,select{font-family:inherit;color:var(--text)}
       </div>
       <div class="bnm-card">
         <div class="bnm-top">
-          <div class="bnm-stat"><div class="bnm-stat-label">OPR Rate</div><div class="bnm-stat-value" id="bnm-opr">—</div><div class="bnm-stat-sub" id="bnm-opr-sub">Loading...</div></div>
-          <div class="bnm-stat"><div class="bnm-stat-label">Inflation CPI</div><div class="bnm-stat-value" id="bnm-cpi">—</div><div class="bnm-stat-sub" id="bnm-cpi-sub">Annual change</div></div>
+          <a href="https://www.bnm.gov.my/monetary-stability/opr-decisions" target="_blank" style="text-decoration:none">
+  <div class="bnm-stat" style="cursor:pointer">
+    <div class="bnm-stat-label">OPR Rate <span style="color:var(--blue);font-size:9px">↗</span></div>
+    <div class="bnm-stat-value" style="font-size:14px;margin-top:6px">View latest</div>
+    <div class="bnm-stat-sub" style="color:var(--blue)">bnm.gov.my →</div>
+  </div>
+</a>
+          <a href="https://www.dosm.gov.my/portal-main/release-content/consumer-price-index" target="_blank" style="text-decoration:none">
+  <div class="bnm-stat" style="cursor:pointer">
+    <div class="bnm-stat-label">CPI Inflation <span style="color:var(--blue);font-size:9px">↗</span></div>
+    <div class="bnm-stat-value" style="font-size:14px;margin-top:6px">View latest</div>
+    <div class="bnm-stat-sub" style="color:var(--blue)">dosm.gov.my →</div>
+  </div>
+</a>
         </div>
         <div class="fx-section-label">FX Rates vs MYR</div>
         <div id="fx-table"><div class="empty-state" style="padding:12px 0;font-size:12px">Loading...</div></div>
@@ -512,27 +524,18 @@ async function fetchMarketData(){
 async function fetchBNMData(){
   const icon=document.getElementById('bnm-icon');icon.classList.add('spinning');
 
-  // OPR — update when BNM announces changes
-  document.getElementById('bnm-opr').textContent='2.75%';
-  document.getElementById('bnm-opr-sub').textContent='Current · Bank Negara Malaysia';
-
-  // CPI — update when DOSM releases new data
-  document.getElementById('bnm-cpi').textContent='1.8%';
-  document.getElementById('bnm-cpi-sub').textContent='Feb 2026 · DOSM';
-
-  // FX — ExchangeRate-API, base USD then convert each pair to MYR
+  // FX — live from ExchangeRate-API
   const API_KEY='cd7d35ccda8fdc174bb66d41';
   const fxEl=document.getElementById('fx-table');
 
   try{
-    // Fetch USD base, then calculate X/MYR for each pair
     const r=await fetch(`https://v6.exchangerate-api.com/v6/${API_KEY}/latest/USD`);
     if(!r.ok) throw new Error('API error '+r.status);
     const d=await r.json();
-    if(d.result!=='success') throw new Error('API failed: '+d['error-type']);
+    if(d.result!=='success') throw new Error('API failed');
 
-    const rates=d.conversion_rates; // rates[X] = how many X per 1 USD
-    const myrPerUSD=rates['MYR'];   // e.g. 4.45
+    const rates=d.conversion_rates;
+    const myrPerUSD=rates['MYR'];
 
     const pairs=[
       {code:'USD', flag:'🇺🇸', label:'USD/MYR'},
@@ -543,12 +546,7 @@ async function fetchBNMData(){
     ];
 
     fxEl.innerHTML=pairs.map(p=>{
-      // 1 p.code = ? MYR
-      // 1 USD = rates[p.code] of p.code, 1 USD = myrPerUSD MYR
-      // so 1 p.code = myrPerUSD / rates[p.code] MYR
-      const rate = p.code==='USD'
-        ? myrPerUSD
-        : myrPerUSD / rates[p.code];
+      const rate=p.code==='USD' ? myrPerUSD : myrPerUSD/rates[p.code];
       return`<div class="fx-row">
         <div class="fx-pair"><span class="fx-flag">${p.flag}</span>${p.label}</div>
         <div class="fx-rates">
@@ -562,9 +560,7 @@ async function fetchBNMData(){
     document.getElementById('bnm-updated').textContent=`FX updated ${now} · ExchangeRate-API`;
 
   }catch(e){
-    console.error('FX error:',e);
-    fxEl.innerHTML=`<div class="empty-state" style="padding:8px 0;font-size:12px;color:var(--red)">${e.message}</div>`;
-    document.getElementById('bnm-updated').textContent='FX load failed';
+    fxEl.innerHTML='<div class="empty-state" style="padding:8px 0;font-size:12px;color:var(--text3)">FX unavailable</div>';
   }
 
   icon.classList.remove('spinning');

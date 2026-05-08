@@ -512,52 +512,59 @@ async function fetchMarketData(){
 async function fetchBNMData(){
   const icon=document.getElementById('bnm-icon');icon.classList.add('spinning');
 
-  // OPR — updated manually when BNM announces changes
+  // OPR — update when BNM announces changes
   document.getElementById('bnm-opr').textContent='2.75%';
   document.getElementById('bnm-opr-sub').textContent='Current · Bank Negara Malaysia';
 
-  // FX — ExchangeRate-API (free, CORS supported)
+  // CPI — update when DOSM releases new data
+  document.getElementById('bnm-cpi').textContent='1.8%';
+  document.getElementById('bnm-cpi-sub').textContent='Feb 2026 · DOSM';
+
+  // FX — ExchangeRate-API, base USD then convert each pair to MYR
   const API_KEY='cd7d35ccda8fdc174bb66d41';
-  const flags={USD:'🇺🇸',SGD:'🇸🇬',GBP:'🇬🇧',EUR:'🇪🇺',AUD:'🇦🇺'};
   const fxEl=document.getElementById('fx-table');
 
   try{
-    const r=await fetch(`https://v6.exchangerate-api.com/v6/${API_KEY}/latest/MYR`);
-    if(!r.ok) throw new Error('API error');
+    // Fetch USD base, then calculate X/MYR for each pair
+    const r=await fetch(`https://v6.exchangerate-api.com/v6/${API_KEY}/latest/USD`);
+    if(!r.ok) throw new Error('API error '+r.status);
     const d=await r.json();
-    if(d.result!=='success') throw new Error('API failed');
+    if(d.result!=='success') throw new Error('API failed: '+d['error-type']);
 
-    const rates=d.conversion_rates;
+    const rates=d.conversion_rates; // rates[X] = how many X per 1 USD
+    const myrPerUSD=rates['MYR'];   // e.g. 4.45
+
     const pairs=[
-      {code:'USD',flag:'🇺🇸',label:'USD/MYR'},
-      {code:'SGD',flag:'🇸🇬',label:'SGD/MYR'},
-      {code:'GBP',flag:'🇬🇧',label:'GBP/MYR'},
-      {code:'EUR',flag:'🇪🇺',label:'EUR/MYR'},
-      {code:'AUD',flag:'🇦🇺',label:'AUD/MYR'},
+      {code:'USD', flag:'🇺🇸', label:'USD/MYR'},
+      {code:'SGD', flag:'🇸🇬', label:'SGD/MYR'},
+      {code:'GBP', flag:'🇬🇧', label:'GBP/MYR'},
+      {code:'EUR', flag:'🇪🇺', label:'EUR/MYR'},
+      {code:'AUD', flag:'🇦🇺', label:'AUD/MYR'},
     ];
 
     fxEl.innerHTML=pairs.map(p=>{
-      const myrPerUnit = rates[p.code] ? (1/rates[p.code]).toFixed(4) : '—';
+      // 1 p.code = ? MYR
+      // 1 USD = rates[p.code] of p.code, 1 USD = myrPerUSD MYR
+      // so 1 p.code = myrPerUSD / rates[p.code] MYR
+      const rate = p.code==='USD'
+        ? myrPerUSD
+        : myrPerUSD / rates[p.code];
       return`<div class="fx-row">
         <div class="fx-pair"><span class="fx-flag">${p.flag}</span>${p.label}</div>
         <div class="fx-rates">
-          <div class="fx-sell">${myrPerUnit}</div>
+          <div class="fx-sell">${rate.toFixed(4)}</div>
           <div class="fx-buy" style="color:var(--text3)">per 1 ${p.code}</div>
         </div>
       </div>`;
     }).join('');
 
-    // CPI from same API update time
-    document.getElementById('bnm-cpi').textContent='1.8%';
-    document.getElementById('bnm-cpi-sub').textContent='Feb 2026 · DOSM';
-
     const now=new Date().toLocaleTimeString('en-MY',{hour:'2-digit',minute:'2-digit'});
-    document.getElementById('bnm-updated').textContent=`Updated ${now} · ExchangeRate-API`;
+    document.getElementById('bnm-updated').textContent=`FX updated ${now} · ExchangeRate-API`;
 
   }catch(e){
     console.error('FX error:',e);
-    fxEl.innerHTML='<div class="empty-state" style="padding:8px 0;font-size:12px;color:var(--text3)">FX unavailable — check API key</div>';
-    document.getElementById('bnm-updated').textContent='Unable to load FX data';
+    fxEl.innerHTML=`<div class="empty-state" style="padding:8px 0;font-size:12px;color:var(--red)">${e.message}</div>`;
+    document.getElementById('bnm-updated').textContent='FX load failed';
   }
 
   icon.classList.remove('spinning');

@@ -2,513 +2,315 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0f1e">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>AdvisorMY</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://apis.google.com/js/api.js"></script>
 <script src="https://accounts.google.com/gsi/client"></script>
 <style>
-/* ── THEME ─────────────────────────────────────────── */
 :root {
-  --accent: #2563eb;
-  --accent2: #0ea5e9;
-  --green: #059669;
-  --amber: #d97706;
-  --red: #dc2626;
-  --purple: #7c3aed;
-  --radius: 14px;
-  --radius-sm: 8px;
-  --font-display: 'DM Serif Display', Georgia, serif;
-  --font-body: 'DM Sans', system-ui, sans-serif;
-  --transition: 0.2s cubic-bezier(.4,0,.2,1);
+  --blue: #3b82f6; --blue-dark: #1d4ed8; --green: #10b981;
+  --red: #ef4444; --amber: #f59e0b; --purple: #8b5cf6;
+  --bg: #f0f4f8; --bg2: #e4eaf1; --card: #ffffff; --card2: #f8fafc;
+  --border: rgba(0,0,0,0.06); --text: #0f172a; --text2: #475569; --text3: #94a3b8;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
+  --radius: 16px; --radius-sm: 10px;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0b1220;
-    --bg2: #111827;
-    --bg3: #1f2937;
-    --bg4: #374151;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.14);
-    --text: #f1f5f9;
-    --text2: #94a3b8;
-    --text3: #64748b;
-    --card: #161e2e;
-    --card2: #1e293b;
-    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --bg: #060d1a; --bg2: #0d1626; --card: #111827; --card2: #1a2332;
+    --border: rgba(255,255,255,0.06); --text: #f1f5f9; --text2: #94a3b8; --text3: #475569;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3),0 4px 16px rgba(0,0,0,0.2);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
   }
 }
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f0f4f8;
-    --bg2: #e8edf3;
-    --bg3: #dde3eb;
-    --bg4: #c8d0db;
-    --border: rgba(0,0,0,0.07);
-    --border2: rgba(0,0,0,0.12);
-    --text: #0f172a;
-    --text2: #475569;
-    --text3: #94a3b8;
-    --card: #ffffff;
-    --card2: #f8fafc;
-    --shadow: 0 4px 24px rgba(0,0,0,0.08);
-  }
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{height:100%;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;color:var(--text)}
 
-/* ── RESET ─────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; font-family: var(--font-body); background: var(--bg); color: var(--text); overflow-x: hidden; }
-button { font-family: var(--font-body); cursor: pointer; border: none; background: none; color: inherit; }
-input, textarea, select { font-family: var(--font-body); color: var(--text); }
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:40px 28px}
+.login-inner{width:100%;max-width:340px}
+.login-wordmark{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;letter-spacing:-0.5px;color:var(--text);margin-bottom:6px}
+.login-wordmark span{color:var(--blue)}
+.login-tagline{font-size:14px;color:var(--text2);margin-bottom:48px;line-height:1.6}
+.btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:var(--blue);color:#fff;border-radius:12px;padding:14px 20px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 14px rgba(59,130,246,0.4)}
+.btn-google:hover{background:var(--blue-dark);transform:translateY(-1px)}
+.btn-demo{display:block;text-align:center;font-size:13px;color:var(--text3);margin-top:14px;cursor:pointer;padding:4px}
+.btn-demo:hover{color:var(--text2)}
 
-/* ── LAYOUT ─────────────────────────────────────────── */
-#app { display: flex; flex-direction: column; min-height: 100vh; }
-.top-bar {
-  position: sticky; top: 0; z-index: 100;
-  background: var(--card); border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-  display: flex; align-items: center; justify-content: space-between;
-  height: 56px;
-}
-.logo { font-family: var(--font-display); font-size: 18px; letter-spacing: -0.3px; color: var(--text); }
-.logo span { color: var(--accent); }
-.top-right { display: flex; align-items: center; gap: 10px; }
-.avatar-btn {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: var(--accent); color: #fff;
-  font-size: 13px; font-weight: 600;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: opacity var(--transition);
-}
-.avatar-btn:hover { opacity: 0.85; }
-.date-chip {
-  font-size: 12px; color: var(--text2);
-  background: var(--bg2); border-radius: 20px;
-  padding: 4px 10px;
-}
+/* APP SHELL */
+#app{display:none;flex-direction:column;min-height:100vh}
+.top-bar{background:var(--card);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.wordmark{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;letter-spacing:-0.3px}
+.wordmark span{color:var(--blue)}
+.top-right{display:flex;align-items:center;gap:10px}
+.date-badge{font-size:12px;color:var(--text3);font-weight:500}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer}
 
-/* ── NAV TABS ─────────────────────────────────────────── */
-.nav-tabs {
-  display: flex; gap: 2px;
-  background: var(--bg2); border-radius: 10px;
-  padding: 3px; margin: 16px 20px 0;
-}
-.nav-tab {
-  flex: 1; padding: 7px 4px; border-radius: 7px;
-  font-size: 12px; font-weight: 500; color: var(--text2);
-  text-align: center; cursor: pointer;
-  transition: all var(--transition);
-}
-.nav-tab.active { background: var(--card); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+/* NAV */
+.nav-wrap{background:var(--card);border-bottom:1px solid var(--border);padding:0 16px}
+.nav-tabs{display:flex;overflow-x:auto;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{padding:12px 14px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.2s}
+.nav-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
 
-/* ── MAIN CONTENT ─────────────────────────────────────── */
-.main { padding: 16px 20px 100px; flex: 1; }
-.section { display: none; }
-.section.active { display: block; }
+/* MAIN */
+.main{flex:1;padding:16px 16px 100px;max-width:680px;margin:0 auto;width:100%}
+.section{display:none}
+.section.active{display:block}
 
-/* ── CARDS ─────────────────────────────────────────── */
-.card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 16px 16px 14px;
-  box-shadow: var(--shadow); margin-bottom: 12px;
-}
-.card-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 12px;
-}
-.card-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); }
-.card-action { font-size: 12px; color: var(--accent); font-weight: 500; cursor: pointer; }
+/* HERO */
+.hero-card{background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 50%,#2563eb 100%);border-radius:var(--radius);padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.hero-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.05)}
+.hero-card::after{content:'';position:absolute;bottom:-30px;left:30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.04)}
+.hero-period{font-size:10px;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.12em;font-weight:600;margin-bottom:3px}
+.hero-name{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.3px;margin-bottom:2px}
+.hero-date{font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:18px}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;position:relative;z-index:1}
+.hero-stat{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 8px;text-align:center;backdrop-filter:blur(10px)}
+.hero-stat-num{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:#fff;line-height:1}
+.hero-stat-label{font-size:10px;color:rgba(255,255,255,0.55);margin-top:4px;font-weight:500;letter-spacing:0.04em}
 
-/* ── TODAY HEADER ─────────────────────────────────────── */
-.today-hero {
-  background: linear-gradient(135deg, var(--accent) 0%, #1d4ed8 100%);
-  border-radius: var(--radius);
-  padding: 20px 18px 18px;
-  margin-bottom: 14px;
-  position: relative;
-  overflow: hidden;
-}
-.today-hero::before {
-  content: '';
-  position: absolute;
-  top: -30px; right: -30px;
-  width: 120px; height: 120px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.06);
-}
-.today-hero::after {
-  content: '';
-  position: absolute;
-  bottom: -20px; right: 40px;
-  width: 80px; height: 80px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.04);
-}
-.today-greeting { font-family: var(--font-display); font-size: 24px; line-height: 1.2; color: #fff; }
-.today-sub { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 4px; }
-.today-hero-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 16px; }
-.hero-stat {
-  background: rgba(255,255,255,0.12);
-  border-radius: 10px; padding: 10px 8px; text-align: center;
-  backdrop-filter: blur(4px);
-}
-.hero-stat-num { font-family: var(--font-display); font-size: 22px; color: #fff; line-height: 1; }
-.hero-stat-label { font-size: 10px; color: rgba(255,255,255,0.65); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+/* SECTION HEADER */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px}
+.section-title{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase}
+.section-action{font-size:12px;color:var(--blue);font-weight:600;cursor:pointer}
+.refresh-btn{font-size:11px;color:var(--text3);cursor:pointer;display:flex;align-items:center;gap:4px;font-weight:500}
+.refresh-btn:hover{color:var(--blue)}
 
-/* ── STATS ROW (keep for compat) ─────────────────────────── */
-.stats-row { display: none; }
-.stat-card { display: none; }
-.stat-num {}
-.stat-label {}
+/* MARKET TICKER */
+.market-scroll-wrap{overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px 4px;margin-bottom:16px}
+.market-scroll-wrap::-webkit-scrollbar{display:none}
+.market-ticker{display:flex;gap:8px;width:max-content}
+.ticker-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;min-width:108px;transition:all 0.2s;box-shadow:var(--shadow)}
+.ticker-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.ticker-name{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.09em;margin-bottom:7px}
+.ticker-price{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--text);letter-spacing:-0.3px;margin-bottom:5px}
+.ticker-change{display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px}
+.tick-up{color:#059669;background:rgba(16,185,129,0.1)}
+.tick-down{color:#ef4444;background:rgba(239,68,68,0.1)}
+.tick-flat{color:var(--text3);background:var(--bg2)}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);animation:pulse 1.2s ease-in-out infinite;display:inline-block;margin:0 2px}
+.pulse-dot:nth-child(2){animation-delay:0.2s}
+.pulse-dot:nth-child(3){animation-delay:0.4s}
+@keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1)}}
 
-/* ── TASK ITEMS ─────────────────────────────────────────── */
-.task-item {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 10px 0; border-bottom: 1px solid var(--border);
-  transition: opacity var(--transition);
-}
-.task-item:last-child { border-bottom: none; }
-.task-item.done { opacity: 0.45; }
-.task-item.done .task-text { text-decoration: line-through; }
-.task-check {
-  width: 18px; height: 18px; border-radius: 50%;
-  border: 1.5px solid var(--border2); flex-shrink: 0;
-  margin-top: 1px; cursor: pointer; display: flex;
-  align-items: center; justify-content: center;
-  transition: all var(--transition);
-}
-.task-check.checked { background: var(--green); border-color: var(--green); }
-.task-check.checked::after { content: '✓'; color: #fff; font-size: 10px; font-weight: 700; }
-.task-text { font-size: 14px; flex: 1; line-height: 1.4; }
-.task-tag {
-  font-size: 10px; padding: 2px 7px; border-radius: 20px;
-  font-weight: 500; flex-shrink: 0; margin-top: 1px;
-}
-.tag-client { background: rgba(37,99,235,0.12); color: var(--accent); }
-.tag-admin { background: rgba(124,58,237,0.12); color: var(--purple); }
-.tag-personal { background: rgba(5,150,105,0.12); color: var(--green); }
-.tag-urgent { background: rgba(220,38,38,0.12); color: var(--red); }
+/* BNM */
+.bnm-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.bnm-top{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.bnm-stat{background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px}
+.bnm-stat-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.09em;margin-bottom:6px}
+.bnm-stat-value{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.5px}
+.bnm-stat-sub{font-size:10px;color:var(--text3);margin-top:3px}
+.fx-section-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.09em;margin-bottom:8px}
+.fx-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.fx-row:last-child{border-bottom:none}
+.fx-pair{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px}
+.fx-flag{font-size:15px}
+.fx-rates{text-align:right}
+.fx-sell{font-size:13px;font-weight:600;color:var(--text)}
+.fx-buy{font-size:10px;color:var(--text3);margin-top:1px}
+.updated-text{font-size:10px;color:var(--text3);text-align:right;margin-top:8px}
 
-/* ── ADD TASK ─────────────────────────────────────────── */
-.add-task-row {
-  display: flex; gap: 8px; margin-top: 10px;
-}
-.add-task-row input {
-  flex: 1; background: var(--bg2); border: 1px solid var(--border2);
-  border-radius: var(--radius-sm); padding: 8px 12px;
-  font-size: 13px; outline: none;
-  transition: border-color var(--transition);
-}
-.add-task-row input:focus { border-color: var(--accent); }
-.add-task-row select {
-  background: var(--bg2); border: 1px solid var(--border2);
-  border-radius: var(--radius-sm); padding: 8px 8px;
-  font-size: 12px; outline: none; cursor: pointer;
-}
-.btn-add {
-  background: var(--accent); color: #fff;
-  border-radius: var(--radius-sm); padding: 8px 14px;
-  font-size: 13px; font-weight: 500;
-  transition: opacity var(--transition);
-}
-.btn-add:hover { opacity: 0.85; }
+/* SCHEDULE */
+.schedule-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:4px 16px;margin-bottom:16px;box-shadow:var(--shadow)}
+.event-row{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}
+.event-row:last-child{border-bottom:none}
+.event-time-col{text-align:right;min-width:44px;flex-shrink:0}
+.event-time{font-size:12px;font-weight:600;color:var(--text2);line-height:1}
+.event-ampm{font-size:9px;color:var(--text3);margin-top:2px;text-transform:uppercase}
+.event-dot-col{display:flex;flex-direction:column;align-items:center;padding-top:4px}
+.event-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0}
+.event-dot.green{background:var(--green)}
+.event-dot.amber{background:var(--amber)}
+.event-line{width:1.5px;flex:1;background:var(--border);margin-top:5px;min-height:14px}
+.event-name{font-size:14px;font-weight:500;color:var(--text);line-height:1.3}
+.event-location{font-size:11px;color:var(--text3);margin-top:3px}
+.empty-state{text-align:center;padding:28px 0;font-size:13px;color:var(--text3)}
 
-/* ── CALENDAR EVENTS ─────────────────────────────────── */
-.event-item {
-  display: flex; gap: 12px; align-items: flex-start;
-  padding: 8px 0; border-bottom: 1px solid var(--border);
-}
-.event-item:last-child { border-bottom: none; }
-.event-time { font-size: 11px; color: var(--text3); min-width: 42px; padding-top: 2px; font-weight: 500; }
-.event-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 4px; flex-shrink: 0; }
-.event-dot.green { background: var(--green); }
-.event-dot.amber { background: var(--amber); }
-.event-name { font-size: 14px; flex: 1; line-height: 1.4; }
-.event-loc { font-size: 11px; color: var(--text3); margin-top: 2px; }
+/* TASKS */
+.tasks-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px}
+.task-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);transition:background 0.15s}
+.task-item:last-child{border-bottom:none}
+.task-item:hover{background:var(--bg)}
+.task-item.done{opacity:0.45}
+.task-item.done .task-text{text-decoration:line-through}
+.task-check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.task-check:hover{border-color:var(--blue)}
+.task-check.checked{background:var(--green);border-color:var(--green)}
+.task-check.checked::after{content:'✓';color:#fff;font-size:11px;font-weight:700}
+.task-text{font-size:14px;flex:1;color:var(--text);line-height:1.4}
+.task-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;flex-shrink:0}
+.tag-client{background:rgba(59,130,246,0.1);color:var(--blue)}
+.tag-admin{background:rgba(139,92,246,0.1);color:var(--purple)}
+.tag-personal{background:rgba(16,185,129,0.1);color:var(--green)}
+.tag-urgent{background:rgba(239,68,68,0.1);color:var(--red)}
+.task-input-row{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--border);background:var(--bg)}
+.task-input-row input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;outline:none;transition:border-color 0.2s}
+.task-input-row input:focus{border-color:var(--blue)}
+.task-input-row select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:12px;outline:none}
+.btn-add-task{background:var(--blue);color:#fff;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;transition:opacity 0.2s}
+.btn-add-task:hover{opacity:0.85}
 
-/* ── CLIENTS ─────────────────────────────────────────── */
-.client-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 0; border-bottom: 1px solid var(--border);
-  cursor: pointer; transition: opacity var(--transition);
-}
-.client-item:last-child { border-bottom: none; }
-.client-item:hover { opacity: 0.75; }
-.client-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 600; flex-shrink: 0;
-}
-.client-info { flex: 1; }
-.client-name { font-size: 14px; font-weight: 500; }
-.client-detail { font-size: 11px; color: var(--text2); margin-top: 2px; }
-.client-status {
-  font-size: 10px; padding: 3px 8px; border-radius: 20px; font-weight: 600;
-}
-.status-active { background: rgba(5,150,105,0.12); color: var(--green); }
-.status-followup { background: rgba(217,119,6,0.12); color: var(--amber); }
-.status-prospect { background: rgba(37,99,235,0.12); color: var(--accent); }
+/* CLIENTS */
+.clients-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.client-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);transition:background 0.15s}
+.client-item:hover{background:var(--bg)}
+.client-item:last-child{border-bottom:none}
+.client-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.client-name{font-size:14px;font-weight:600;color:var(--text)}
+.client-detail{font-size:12px;color:var(--text3);margin-top:2px}
+.status-pill{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:600}
+.status-active{background:rgba(16,185,129,0.1);color:var(--green)}
+.status-followup{background:rgba(245,158,11,0.1);color:var(--amber)}
+.status-prospect{background:rgba(59,130,246,0.1);color:var(--blue)}
 
-/* ── PIPELINE ─────────────────────────────────────────── */
-.pipeline-col { margin-bottom: 14px; }
-.pipeline-label {
-  font-size: 11px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.08em; color: var(--text3); margin-bottom: 8px;
-  display: flex; align-items: center; gap: 6px;
-}
-.pipeline-dot { width: 7px; height: 7px; border-radius: 50%; }
-.pipeline-card {
-  background: var(--card2); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 10px 12px;
-  margin-bottom: 6px;
-}
-.pipeline-name { font-size: 13px; font-weight: 500; }
-.pipeline-meta { font-size: 11px; color: var(--text2); margin-top: 3px; }
-.pipeline-amount { font-size: 12px; color: var(--green); font-weight: 600; margin-top: 4px; }
+/* PIPELINE */
+.pipeline-stage{margin-bottom:18px}
+.stage-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.stage-dot{width:8px;height:8px;border-radius:50%}
+.stage-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em}
+.stage-count{font-size:11px;color:var(--text3)}
+.pipeline-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:7px;box-shadow:var(--shadow)}
+.pipeline-name{font-size:14px;font-weight:600;color:var(--text)}
+.pipeline-note{font-size:12px;color:var(--text3);margin-top:3px}
+.pipeline-amount{font-size:12px;font-weight:600;color:var(--green);margin-top:6px}
 
-/* ── GOALS ─────────────────────────────────────────── */
-.goal-item { margin-bottom: 16px; }
-.goal-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
-.goal-name { font-size: 13px; font-weight: 500; }
-.goal-pct { font-size: 12px; color: var(--text2); }
-.progress-bar { height: 6px; background: var(--bg3); border-radius: 20px; overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 20px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
-.goal-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+/* GOALS */
+.goal-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
+.goal-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.goal-name{font-size:13px;font-weight:600;color:var(--text);flex:1;line-height:1.3}
+.goal-pct{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-left:12px}
+.progress-track{height:6px;background:var(--bg2);border-radius:20px;overflow:hidden}
+.progress-fill{height:100%;border-radius:20px;transition:width 0.8s cubic-bezier(.4,0,.2,1)}
+.goal-sub{font-size:11px;color:var(--text3);margin-top:6px}
 
-/* ── MARKET NOTES ─────────────────────────────────────── */
-.note-item {
-  padding: 10px 0; border-bottom: 1px solid var(--border);
-}
-.note-item:last-child { border-bottom: none; }
-.note-date { font-size: 10px; color: var(--text3); margin-bottom: 3px; }
-.note-text { font-size: 13px; line-height: 1.5; }
+/* NOTES */
+.note-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.note-date{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.note-text{font-size:14px;color:var(--text);line-height:1.6}
 
-/* ── LOGIN SCREEN ─────────────────────────────────────── */
-#login-screen {
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  min-height: 100vh; padding: 40px 0;
-}
-.btn-google {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--accent); color: #fff;
-  border-radius: 12px; padding: 14px 28px;
-  font-size: 15px; font-weight: 600;
-  cursor: pointer; transition: opacity var(--transition);
-  box-shadow: 0 4px 14px rgba(37,99,235,0.35);
-}
-.btn-google:hover { opacity: 0.88; }
-.btn-demo {
-  margin-top: 12px; font-size: 13px; color: var(--text3);
-  cursor: pointer; text-decoration: underline;
-}
-.config-note {
-  margin-top: 28px; padding: 12px 16px;
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); font-size: 12px;
-  color: var(--text2); line-height: 1.6; max-width: 320px; text-align: left;
-}
-.config-note code {
-  background: var(--bg3); padding: 1px 5px;
-  border-radius: 4px; font-size: 11px; color: var(--accent);
-}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.6);align-items:flex-end;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--card);border-radius:20px 20px 0 0;padding:20px 20px 48px;width:100%;max-width:500px;margin:0 auto}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.modal-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:18px;letter-spacing:-0.3px}
+.modal-field{margin-bottom:14px}
+.modal-field label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;display:block;margin-bottom:6px}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;outline:none;transition:border-color 0.2s;color:var(--text)}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--blue)}
+.modal-actions{display:flex;gap:8px;margin-top:18px}
+.btn-primary{flex:1;background:var(--blue);color:#fff;border-radius:10px;padding:13px;font-size:14px;font-weight:700;transition:opacity 0.2s}
+.btn-primary:hover{opacity:0.85}
+.btn-secondary{padding:13px 20px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;color:var(--text2);font-weight:500;transition:background 0.2s}
+.btn-secondary:hover{background:var(--bg)}
 
-/* ── MODAL ─────────────────────────────────────────── */
-.modal-overlay {
-  display: none; position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,0.5); align-items: flex-end;
-}
-.modal-overlay.open { display: flex; }
-.modal-box {
-  background: var(--card); border-radius: 20px 20px 0 0;
-  padding: 24px 20px 40px; width: 100%; max-width: 500px; margin: 0 auto;
-}
-.modal-title { font-family: var(--font-display); font-size: 20px; margin-bottom: 16px; }
-.modal-field { margin-bottom: 12px; }
-.modal-field label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; display: block; margin-bottom: 4px; }
-.modal-field input, .modal-field select, .modal-field textarea {
-  width: 100%; background: var(--bg2); border: 1px solid var(--border2);
-  border-radius: var(--radius-sm); padding: 9px 12px;
-  font-size: 14px; outline: none; transition: border-color var(--transition);
-}
-.modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus { border-color: var(--accent); }
-.modal-actions { display: flex; gap: 8px; margin-top: 16px; }
-.btn-primary {
-  flex: 1; background: var(--accent); color: #fff;
-  border-radius: var(--radius-sm); padding: 11px;
-  font-size: 14px; font-weight: 600; transition: opacity var(--transition);
-}
-.btn-primary:hover { opacity: 0.85; }
-.btn-secondary {
-  padding: 11px 20px; border: 1px solid var(--border2);
-  border-radius: var(--radius-sm); font-size: 14px; color: var(--text2);
-  transition: background var(--transition);
-}
-.btn-secondary:hover { background: var(--bg2); }
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--card);border-top:1px solid var(--border);display:flex;padding:8px 0 env(safe-area-inset-bottom,12px)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;cursor:pointer}
+.nav-icon{font-size:20px;line-height:1}
+.nav-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.02em}
+.nav-item.active .nav-label{color:var(--blue)}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--blue);margin:0 auto;opacity:0;transition:opacity 0.2s}
+.nav-item.active .nav-dot{opacity:1}
 
-/* ── BOTTOM NAV (mobile) ─────────────────────────────── */
-.bottom-nav {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-  background: var(--card); border-top: 1px solid var(--border);
-  display: flex; padding: 8px 0 env(safe-area-inset-bottom, 8px);
-}
-.bottom-nav-item {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; gap: 3px; padding: 6px;
-  cursor: pointer; transition: opacity var(--transition);
-}
-.bottom-nav-item .nav-icon { font-size: 20px; }
-.bottom-nav-item .nav-label { font-size: 10px; color: var(--text3); font-weight: 500; }
-.bottom-nav-item.active .nav-label { color: var(--accent); }
-.bottom-nav-item.active .nav-icon { filter: none; }
-.nav-indicator {
-  width: 4px; height: 4px; border-radius: 50%;
-  background: var(--accent); margin: 0 auto;
-  opacity: 0; transition: opacity var(--transition);
-}
-.bottom-nav-item.active .nav-indicator { opacity: 1; }
-
-/* ── MISC ─────────────────────────────────────────── */
-.empty-state { text-align: center; padding: 32px 0; color: var(--text3); font-size: 13px; }
-.sync-btn {
-  font-size: 12px; color: var(--text3); display: flex;
-  align-items: center; gap: 4px; cursor: pointer;
-}
-.sync-btn:hover { color: var(--accent); }
-.spinning { animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.badge-count {
-  background: var(--red); color: #fff; font-size: 9px;
-  border-radius: 20px; padding: 1px 5px; font-weight: 700;
-  position: absolute; top: 2px; right: 8px;
-}
-.relative { position: relative; }
+.spinning{animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
 <div id="login-screen">
-  <div style="width:100%;max-width:360px;margin:0 auto;padding:0 24px;">
-
-    <div style="margin-bottom:48px;">
-      <div style="font-family:var(--font-display);font-size:32px;color:var(--text);letter-spacing:-0.5px;">Advisor<span style="color:var(--accent)">MY</span></div>
-      <div style="font-size:14px;color:var(--text2);margin-top:6px;">Your personal command centre</div>
-    </div>
-
-    <button class="btn-google" onclick="signIn()" style="width:100%;justify-content:center;border-radius:10px;padding:13px 20px;font-size:14px;">
-      <svg width="17" height="17" viewBox="0 0 18 18"><path fill="#fff" d="M9 1.5C4.86 1.5 1.5 4.86 1.5 9s3.36 7.5 7.5 7.5c4.305 0 7.5-2.895 7.5-7.5 0-.495-.045-.975-.135-1.44H9v2.88h4.5c-.195 1.005-.78 1.86-1.665 2.43v2.01h2.685C16.245 13.38 17.25 11.295 17.25 9c0-.495-.045-.975-.135-1.44H9z"/><path fill="#fff" opacity=".6" d="M9 16.5C4.86 16.5 1.5 13.14 1.5 9h2.7C4.2 11.61 6.375 13.5 9 13.5c1.305 0 2.49-.45 3.42-1.185l-2.685-2.01C9.18 10.635 8.61 10.8 9 10.8c-1.89 0-3.495-1.275-4.065-2.985H2.19v2.07C3.39 14.805 6 16.5 9 16.5z"/></svg>
+  <div class="login-inner">
+    <div class="login-wordmark">Advisor<span>MY</span></div>
+    <div class="login-tagline">Your personal command centre.<br>Built for financial planners.</div>
+    <button class="btn-google" onclick="signIn()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></svg>
       Continue with Google
     </button>
-
-    <div style="text-align:center;margin-top:14px;">
-      <span class="btn-demo" onclick="loadDemoMode()" style="font-size:12px;color:var(--text3)">Try demo instead</span>
-    </div>
-
+    <div class="btn-demo" onclick="loadDemoMode()">Try demo instead</div>
   </div>
 </div>
 
-<!-- MAIN APP -->
-<div id="app" style="display:none">
+<div id="app">
   <div class="top-bar">
-    <div class="logo">Advisor<span>MY</span></div>
+    <div class="wordmark">Advisor<span>MY</span></div>
     <div class="top-right">
-      <div class="date-chip" id="top-date"></div>
-      <div class="avatar-btn" id="user-avatar" onclick="showProfile()">FP</div>
+      <div class="date-badge" id="top-date"></div>
+      <div class="avatar" id="user-avatar" onclick="showProfile()">JL</div>
     </div>
   </div>
-
-  <div class="nav-tabs">
-    <div class="nav-tab active" onclick="switchTab('today')">今日</div>
-    <div class="nav-tab" onclick="switchTab('clients')">客户</div>
-    <div class="nav-tab" onclick="switchTab('pipeline')">Pipeline</div>
-    <div class="nav-tab" onclick="switchTab('goals')">目标</div>
-    <div class="nav-tab" onclick="switchTab('notes')">笔记</div>
+  <div class="nav-wrap">
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="switchTab('today')">今日</div>
+      <div class="nav-tab" onclick="switchTab('clients')">客户</div>
+      <div class="nav-tab" onclick="switchTab('pipeline')">Pipeline</div>
+      <div class="nav-tab" onclick="switchTab('goals')">目标</div>
+      <div class="nav-tab" onclick="switchTab('notes')">笔记</div>
+    </div>
   </div>
 
   <div class="main">
 
-    <!-- TODAY TAB -->
     <div id="tab-today" class="section active">
-      <div class="today-hero">
-        <div class="today-greeting" id="greeting-text">Good morning</div>
-        <div class="today-sub" id="greeting-sub">Loading your day...</div>
-        <div class="today-hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-num" id="stat-tasks">0</div>
-            <div class="hero-stat-label">Tasks</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-num" id="stat-events">0</div>
-            <div class="hero-stat-label">Meetings</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-num" id="stat-followup">0</div>
-            <div class="hero-stat-label">Follow-ups</div>
+      <div class="hero-card">
+        <div class="hero-period" id="hero-period">GOOD MORNING</div>
+        <div class="hero-name" id="hero-name">Welcome back</div>
+        <div class="hero-date" id="hero-date"></div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="hero-stat-num" id="stat-tasks">0</div><div class="hero-stat-label">Tasks</div></div>
+          <div class="hero-stat"><div class="hero-stat-num" id="stat-events">0</div><div class="hero-stat-label">Meetings</div></div>
+          <div class="hero-stat"><div class="hero-stat-num" id="stat-followup">0</div><div class="hero-stat-label">Follow-ups</div></div>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">Market Pulse</div>
+        <div class="refresh-btn" onclick="fetchMarketData()"><span id="mkt-icon">↻</span> Refresh</div>
+      </div>
+      <div class="market-scroll-wrap">
+        <div class="market-ticker" id="market-ticker">
+          <div class="ticker-card" style="min-width:160px;display:flex;align-items:center;gap:4px;padding:16px">
+            <div class="pulse-dot"></div><div class="pulse-dot"></div><div class="pulse-dot"></div>
           </div>
         </div>
       </div>
 
-      <div class="stats-row">
-        <div class="stat-card"><div class="stat-num" id="stat-tasks-hidden">0</div><div class="stat-label">Tasks</div></div>
-        <div class="stat-card"><div class="stat-num" id="stat-events-hidden">0</div><div class="stat-label">Meetings</div></div>
-        <div class="stat-card"><div class="stat-num" id="stat-followup-hidden">0</div><div class="stat-label">Follow-ups</div></div>
+      <div class="section-header">
+        <div class="section-title">BNM · Malaysia</div>
+        <div class="refresh-btn" onclick="fetchBNMData()"><span id="bnm-icon">↻</span> Refresh</div>
+      </div>
+      <div class="bnm-card">
+        <div class="bnm-top">
+          <div class="bnm-stat"><div class="bnm-stat-label">OPR Rate</div><div class="bnm-stat-value" id="bnm-opr">—</div><div class="bnm-stat-sub" id="bnm-opr-sub">Loading...</div></div>
+          <div class="bnm-stat"><div class="bnm-stat-label">Inflation CPI</div><div class="bnm-stat-value" id="bnm-cpi">—</div><div class="bnm-stat-sub" id="bnm-cpi-sub">Annual change</div></div>
+        </div>
+        <div class="fx-section-label">FX Rates vs MYR</div>
+        <div id="fx-table"><div class="empty-state" style="padding:12px 0;font-size:12px">Loading...</div></div>
+        <div class="updated-text" id="bnm-updated"></div>
       </div>
 
-
-      <!-- Market Data -->
-      <div class="card" id="market-card">
-        <div class="card-header">
-          <div class="card-title">Market Pulse</div>
-          <div class="sync-btn" onclick="fetchMarketData()">
-            <span id="market-sync-icon">↻</span> Refresh
-          </div>
-        </div>
-        <div id="market-grid-container">
-          <div class="market-loading">Loading market data...</div>
-        </div>
+      <div class="section-header">
+        <div class="section-title">Today's Schedule</div>
+        <div class="refresh-btn" onclick="fetchCalendarEvents()"><span id="cal-icon">↻</span> Sync</div>
       </div>
+      <div class="schedule-card" id="events-list"><div class="empty-state">Loading calendar...</div></div>
 
-
-      <!-- BNM Data -->
-      <div class="card" id="bnm-card">
-        <div class="card-header">
-          <div class="card-title">BNM · Malaysia</div>
-          <div class="sync-btn" onclick="fetchBNMData()">
-            <span id="bnm-sync-icon">↻</span> Refresh
-          </div>
-        </div>
-        <div id="bnm-container">
-          <div class="market-loading">Loading BNM data...</div>
-        </div>
+      <div class="section-header" style="margin-top:4px">
+        <div class="section-title">Today's Tasks</div>
+        <div class="section-action" onclick="openAddTask()">+ Add</div>
       </div>
-
-      <!-- Calendar Events -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Today's Schedule</div>
-          <div class="sync-btn" onclick="syncCalendar()">
-            <span id="sync-icon">↻</span> Sync
-          </div>
-        </div>
-        <div id="events-list">
-          <div class="empty-state">正在加载日历...</div>
-        </div>
-      </div>
-
-      <!-- Tasks -->
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">Today's Tasks</div>
-          <div class="card-action" onclick="openAddTask()">+ Add</div>
-        </div>
-        <div id="tasks-list"></div>
-        <div class="add-task-row" id="add-task-inline" style="display:none">
+      <div class="tasks-card">
+        <div id="tasks-list"><div class="empty-state" style="padding:20px">No tasks yet</div></div>
+        <div class="task-input-row" id="task-input-row" style="display:none">
           <input id="new-task-input" placeholder="New task..." onkeydown="if(event.key==='Enter')quickAddTask()">
           <select id="new-task-tag">
             <option value="client">Client</option>
@@ -516,718 +318,343 @@ input, textarea, select { font-family: var(--font-body); color: var(--text); }
             <option value="personal">Personal</option>
             <option value="urgent">Urgent</option>
           </select>
-          <button class="btn-add" onclick="quickAddTask()">Add</button>
+          <button class="btn-add-task" onclick="quickAddTask()">Add</button>
         </div>
       </div>
     </div>
 
-    <!-- CLIENTS TAB -->
     <div id="tab-clients" class="section">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">👥 Clients & Follow-ups</div>
-          <div class="card-action" onclick="openAddClient()">+ Add</div>
-        </div>
-        <div id="clients-list"></div>
+      <div class="section-header">
+        <div class="section-title">Clients & Follow-ups</div>
+        <div class="section-action" onclick="openAddClient()">+ Add</div>
       </div>
+      <div class="clients-card"><div id="clients-list"><div class="empty-state" style="padding:24px">No clients yet</div></div></div>
     </div>
 
-    <!-- PIPELINE TAB -->
     <div id="tab-pipeline" class="section">
+      <div class="section-header"><div class="section-title">Business Pipeline</div></div>
       <div id="pipeline-view"></div>
     </div>
 
-    <!-- GOALS TAB -->
     <div id="tab-goals" class="section">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">🎯 Q2 2026 Goals</div>
-          <div class="card-action" onclick="openAddGoal()">+ Add</div>
-        </div>
-        <div id="goals-list"></div>
+      <div class="section-header">
+        <div class="section-title">Q2 2026 Goals</div>
+        <div class="section-action" onclick="openAddGoal()">+ Add</div>
       </div>
+      <div id="goals-list"></div>
     </div>
 
-    <!-- NOTES TAB -->
     <div id="tab-notes" class="section">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">📝 Market Notes</div>
-          <div class="card-action" onclick="openAddNote()">+ Add</div>
-        </div>
-        <div id="notes-list"></div>
+      <div class="section-header">
+        <div class="section-title">Market Notes</div>
+        <div class="section-action" onclick="openAddNote()">+ Add</div>
       </div>
+      <div id="notes-list"></div>
     </div>
-
-  </div><!-- /main -->
+  </div>
 
   <div class="bottom-nav">
-    <div class="bottom-nav-item active relative" onclick="switchTab('today')" id="nav-today">
-      <div class="nav-icon">🏠</div>
-      <div class="nav-label">今日</div>
-      <div class="nav-indicator"></div>
-    </div>
-    <div class="bottom-nav-item relative" onclick="switchTab('clients')" id="nav-clients">
-      <div class="nav-icon">👥</div>
-      <div class="nav-label">客户</div>
-      <div class="nav-indicator"></div>
-    </div>
-    <div class="bottom-nav-item relative" onclick="switchTab('pipeline')" id="nav-pipeline">
-      <div class="nav-icon">📈</div>
-      <div class="nav-label">Pipeline</div>
-      <div class="nav-indicator"></div>
-    </div>
-    <div class="bottom-nav-item relative" onclick="switchTab('goals')" id="nav-goals">
-      <div class="nav-icon">🎯</div>
-      <div class="nav-label">目标</div>
-      <div class="nav-indicator"></div>
-    </div>
-    <div class="bottom-nav-item relative" onclick="switchTab('notes')" id="nav-notes">
-      <div class="nav-icon">📝</div>
-      <div class="nav-label">笔记</div>
-      <div class="nav-indicator"></div>
-    </div>
+    <div class="nav-item active" onclick="switchTab('today')" id="nav-today"><div class="nav-icon">🏠</div><div class="nav-label">今日</div><div class="nav-dot"></div></div>
+    <div class="nav-item" onclick="switchTab('clients')" id="nav-clients"><div class="nav-icon">👥</div><div class="nav-label">客户</div><div class="nav-dot"></div></div>
+    <div class="nav-item" onclick="switchTab('pipeline')" id="nav-pipeline"><div class="nav-icon">📈</div><div class="nav-label">Pipeline</div><div class="nav-dot"></div></div>
+    <div class="nav-item" onclick="switchTab('goals')" id="nav-goals"><div class="nav-icon">🎯</div><div class="nav-label">目标</div><div class="nav-dot"></div></div>
+    <div class="nav-item" onclick="switchTab('notes')" id="nav-notes"><div class="nav-icon">📝</div><div class="nav-label">笔记</div><div class="nav-dot"></div></div>
   </div>
 </div>
 
-<!-- ADD TASK MODAL -->
 <div class="modal-overlay" id="task-modal">
-  <div class="modal-box">
+  <div class="modal-box"><div class="modal-handle"></div>
     <div class="modal-title">Add Task</div>
-    <div class="modal-field">
-      <label>Task</label>
-      <input id="modal-task-text" placeholder="What needs to be done?">
-    </div>
-    <div class="modal-field">
-      <label>Category</label>
-      <select id="modal-task-tag">
-        <option value="client">👤 Client</option>
-        <option value="admin">🗂 Admin</option>
-        <option value="personal">🌿 Personal</option>
-        <option value="urgent">🔴 Urgent</option>
-      </select>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
-      <button class="btn-primary" onclick="addTaskFromModal()">Add Task</button>
-    </div>
+    <div class="modal-field"><label>Task</label><input id="modal-task-text" placeholder="What needs to be done?"></div>
+    <div class="modal-field"><label>Category</label><select id="modal-task-tag"><option value="client">👤 Client</option><option value="admin">🗂 Admin</option><option value="personal">🌿 Personal</option><option value="urgent">🔴 Urgent</option></select></div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('task-modal')">Cancel</button><button class="btn-primary" onclick="addTaskFromModal()">Add</button></div>
   </div>
 </div>
 
-<!-- ADD CLIENT MODAL -->
 <div class="modal-overlay" id="client-modal">
-  <div class="modal-box">
+  <div class="modal-box"><div class="modal-handle"></div>
     <div class="modal-title">Add Client</div>
     <div class="modal-field"><label>Name</label><input id="client-name" placeholder="Full name"></div>
-    <div class="modal-field"><label>AUM / Portfolio Size</label><input id="client-aum" placeholder="e.g. MYR 500k"></div>
+    <div class="modal-field"><label>AUM / Portfolio</label><input id="client-aum" placeholder="e.g. MYR 500k"></div>
     <div class="modal-field"><label>Next Follow-up</label><input id="client-followup" type="date"></div>
-    <div class="modal-field">
-      <label>Status</label>
-      <select id="client-status">
-        <option value="active">Active</option>
-        <option value="followup">Needs Follow-up</option>
-        <option value="prospect">Prospect</option>
-      </select>
-    </div>
-    <div class="modal-field"><label>Notes</label><textarea id="client-notes" rows="2" placeholder="Key info, goals, preferences..."></textarea></div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('client-modal')">Cancel</button>
-      <button class="btn-primary" onclick="addClient()">Save Client</button>
-    </div>
+    <div class="modal-field"><label>Status</label><select id="client-status"><option value="active">Active</option><option value="followup">Needs Follow-up</option><option value="prospect">Prospect</option></select></div>
+    <div class="modal-field"><label>Notes</label><textarea id="client-notes" rows="2" placeholder="Key info, goals..."></textarea></div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('client-modal')">Cancel</button><button class="btn-primary" onclick="addClient()">Save</button></div>
   </div>
 </div>
 
-<!-- ADD NOTE MODAL -->
 <div class="modal-overlay" id="note-modal">
-  <div class="modal-box">
+  <div class="modal-box"><div class="modal-handle"></div>
     <div class="modal-title">Market Note</div>
     <div class="modal-field"><label>Note</label><textarea id="note-text" rows="4" placeholder="Market observations, ideas, macro views..."></textarea></div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('note-modal')">Cancel</button>
-      <button class="btn-primary" onclick="addNote()">Save Note</button>
-    </div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('note-modal')">Cancel</button><button class="btn-primary" onclick="addNote()">Save</button></div>
   </div>
 </div>
 
 <script>
-// ── CONFIG ──
-const CLIENT_ID = '226999056912-hlj6sp9a1mnip4gna0307uq3a2e8dv5s.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/contacts.readonly';
+const CLIENT_ID='226999056912-hlj6sp9a1mnip4gna0307uq3a2e8dv5s.apps.googleusercontent.com';
+const SCOPES='https://www.googleapis.com/auth/calendar.readonly';
+let tokenClient,gapiInited=false,gisInited=false;
+let state={tasks:[],clients:[],pipeline:[],goals:[],notes:[],events:[],isDemo:false,user:null};
 
-let tokenClient;
-let gapiInited = false;
-let gisInited = false;
-
-// ── STATE ──
-let state = {
-  tasks: [],
-  clients: [],
-  pipeline: [],
-  goals: [],
-  notes: [],
-  events: [],
-  isDemo: false,
-  user: null
-};
-
-// ── INIT ──
-function init() {
-  updateTopDate();
-  updateGreeting();
-  loadFromStorage();
-  gapiInit();
-  gisInit();
+function init(){
+  updateHero(); loadFromStorage();
+  document.getElementById('top-date').textContent=new Date().toLocaleDateString('en-MY',{weekday:'short',month:'short',day:'numeric'});
+  gapiInit(); gisInit();
 }
 
-function gapiInit() {
-  gapi.load('client', async () => {
+function gapiInit(){
+  gapi.load('client',async()=>{
     await gapi.client.init({});
     await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');
-    gapiInited = true;
+    gapiInited=true;
   });
 }
 
-function gisInit() {
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    prompt: '',
-    callback: async (resp) => {
-      if (resp.error) { console.error(resp); return; }
-      // Save token expiry
-      const expiry = Date.now() + (resp.expires_in * 1000);
-      localStorage.setItem('fp-token-expiry', expiry);
-      await fetchUserInfo();
-      showApp();
-      fetchCalendarEvents();
+function gisInit(){
+  tokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:CLIENT_ID,scope:SCOPES,prompt:'',
+    callback:async(resp)=>{
+      if(resp.error){console.error(resp);return;}
+      localStorage.setItem('fp-token-expiry',Date.now()+(resp.expires_in*1000));
+      await fetchUserInfo(); showApp(); fetchCalendarEvents();
     },
   });
-  gisInited = true;
-  tryAutoLogin();
+  gisInited=true; tryAutoLogin();
 }
 
-function tryAutoLogin() {
-  const savedUser = localStorage.getItem('fp-user');
-  const expiry = parseInt(localStorage.getItem('fp-token-expiry') || '0');
-  const stillValid = expiry > Date.now() + 60000;
-
-  if (savedUser) {
-    try {
-      state.user = JSON.parse(savedUser);
-      const initials = state.user.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
-      document.getElementById('user-avatar').textContent = initials;
-    } catch(e) {}
-  }
-
-  if (savedUser && stillValid) {
-    // Token still valid — go straight to app
-    showApp();
-    fetchCalendarEvents();
-    return;
-  }
-
-  if (savedUser && !stillValid) {
-    // Token expired — silently refresh without showing consent screen
-    tokenClient.requestAccessToken({ prompt: '' });
-    return;
-  }
-  // No saved user — show login screen (do nothing, login screen already showing)
+function tryAutoLogin(){
+  const u=localStorage.getItem('fp-user');
+  const exp=parseInt(localStorage.getItem('fp-token-expiry')||'0');
+  if(u){try{state.user=JSON.parse(u);setAvatar(state.user.name);}catch(e){}}
+  if(u&&exp>Date.now()+60000){showApp();fetchCalendarEvents();return;}
+  if(u&&exp<=Date.now()+60000){tokenClient.requestAccessToken({prompt:''});return;}
 }
 
-async function fetchUserInfo() {
-  try {
-    const token = gapi.client.getToken();
-    if (!token) return;
-    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: { Authorization: 'Bearer ' + token.access_token }
-    });
-    const info = await res.json();
-    state.user = { name: info.name || info.email, email: info.email };
-    localStorage.setItem('fp-user', JSON.stringify(state.user));
-    const initials = state.user.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
-    document.getElementById('user-avatar').textContent = initials;
-  } catch(e) { console.error(e); }
+function setAvatar(n){
+  document.getElementById('user-avatar').textContent=n.split(' ').map(x=>x[0]).join('').substring(0,2).toUpperCase();
 }
 
-function signIn() {
-  if (!gisInited) { alert('页面还在初始化，请稍等1秒再试。'); return; }
-  tokenClient.requestAccessToken({ prompt: 'consent' });
+async function fetchUserInfo(){
+  try{
+    const t=gapi.client.getToken();if(!t)return;
+    const r=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+t.access_token}});
+    const i=await r.json();
+    state.user={name:i.name||i.email,email:i.email};
+    localStorage.setItem('fp-user',JSON.stringify(state.user));
+    setAvatar(state.user.name); updateHero();
+  }catch(e){console.error(e);}
 }
 
-function handleSignIn() {}
-
-function signOut() {
-  google.accounts.oauth2.revoke(gapi.client.getToken()?.access_token || '', () => {});
+function signIn(){if(!gisInited){setTimeout(signIn,500);return;}tokenClient.requestAccessToken({prompt:'consent'});}
+function signOut(){
+  google.accounts.oauth2.revoke(gapi.client.getToken()?.access_token||'',()=>{});
   gapi.client.setToken(null);
-  localStorage.removeItem('fp-user');
-  localStorage.removeItem('fp-token-expiry');
+  localStorage.removeItem('fp-user');localStorage.removeItem('fp-token-expiry');
   location.reload();
 }
 
-function showApp() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  document.getElementById('app').style.flexDirection = 'column';
-  renderAll();
+function showApp(){
+  document.getElementById('login-screen').style.display='none';
+  const app=document.getElementById('app');app.style.display='flex';app.style.flexDirection='column';
+  renderAll(); fetchMarketData(); fetchBNMData();
 }
 
-function loadDemoMode() {
-  state.isDemo = true;
-  state.tasks = [
-    { id: 1, text: 'Review Ahmad portfolio rebalancing', tag: 'client', done: false },
-    { id: 2, text: 'Prepare Q2 market update report', tag: 'admin', done: false },
-    { id: 3, text: 'Call Sarah re: insurance renewal', tag: 'urgent', done: false },
-    { id: 4, text: 'Submit CPD hours online', tag: 'admin', done: true },
-    { id: 5, text: 'Update financial plan template', tag: 'admin', done: false },
-  ];
-  state.clients = [
-    { id: 1, name: 'Ahmad Razif', aum: 'MYR 850k', followup: '2026-05-10', status: 'active', notes: 'Conservative, prefers fixed income' },
-    { id: 2, name: 'Sarah Lim', aum: 'MYR 320k', followup: '2026-05-08', status: 'followup', notes: 'Insurance renewal due June' },
-    { id: 3, name: 'David Tan', aum: 'MYR 1.2M', followup: '2026-05-20', status: 'active', notes: 'Retirement planning focus' },
-    { id: 4, name: 'Priya Nair', aum: 'TBD', followup: '2026-05-09', status: 'prospect', notes: 'Referral from Ahmad' },
-  ];
-  state.pipeline = [
-    { id: 1, name: 'Priya Nair', stage: 'prospect', amount: 'MYR ~400k', note: 'Initial meeting done' },
-    { id: 2, name: 'Lee Family Trust', stage: 'proposal', amount: 'MYR 2.1M', note: 'Proposal sent 30 Apr' },
-    { id: 3, name: 'Farah Abdullah', stage: 'negotiation', amount: 'MYR 600k', note: 'Reviewing fee structure' },
-    { id: 4, name: 'Robert Chen', stage: 'closed', amount: 'MYR 750k', note: 'Onboarded May 2' },
-  ];
-  state.goals = [
-    { id: 1, name: 'New AUM (Q2 target: MYR 5M)', current: 3200000, target: 5000000, color: '#2563eb' },
-    { id: 2, name: 'New clients (target: 6)', current: 3, target: 6, color: '#059669' },
-    { id: 3, name: 'CPD Hours (target: 40)', current: 28, target: 40, color: '#7c3aed' },
-    { id: 4, name: 'Client reviews done (target: 20)', current: 11, target: 20, color: '#d97706' },
-  ];
-  state.notes = [
-    { id: 1, date: '7 May 2026', text: 'Fed hold expected — positioning defensively in client portfolios. Watching US 10Y yield.' },
-    { id: 2, date: '5 May 2026', text: 'KLCI testing support at 1,560. Local sentiment still cautious pre-election season.' },
-    { id: 3, date: '2 May 2026', text: 'Global tech earnings solid. Revisiting client tech allocation — consider trimming at highs.' },
-  ];
-  state.events = [
-    { time: '09:00', name: 'Ahmad — Portfolio Review', location: 'Zoom', color: '' },
-    { time: '11:30', name: 'Team Briefing', location: 'Office', color: 'amber' },
-    { time: '14:00', name: 'Lee Family Trust — Proposal Presentation', location: 'Client Office, KL', color: '' },
-    { time: '16:30', name: 'CPD Webinar: Estate Planning', location: 'Online', color: 'green' },
-  ];
-  document.getElementById('user-avatar').textContent = 'JL';
-  showApp();
+function showProfile(){
+  if(state.user){if(confirm(`${state.user.name}\n${state.user.email}\n\nSign out?`))signOut();}
 }
 
-// ── CALENDAR ──
-async function fetchCalendarEvents() {
-  if (state.isDemo) return;
-  try {
-    document.getElementById('sync-icon').classList.add('spinning');
-    const now = new Date();
-    const start = new Date(now.setHours(0,0,0,0)).toISOString();
-    const end = new Date(now.setHours(23,59,59,999)).toISOString();
-    const res = await gapi.client.calendar.events.list({
-      calendarId: 'primary', timeMin: start, timeMax: end,
-      singleEvents: true, orderBy: 'startTime', maxResults: 20
-    });
-    state.events = (res.result.items || []).map(e => ({
-      time: e.start.dateTime ? new Date(e.start.dateTime).toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' }) : 'All day',
-      name: e.summary || '(No title)',
-      location: e.location || '',
-      color: ''
+async function fetchCalendarEvents(){
+  if(state.isDemo)return;
+  const icon=document.getElementById('cal-icon');icon.classList.add('spinning');
+  try{
+    const now=new Date(),start=new Date(now),end=new Date(now);
+    start.setHours(0,0,0,0);end.setHours(23,59,59,999);
+    const res=await gapi.client.calendar.events.list({calendarId:'primary',timeMin:start.toISOString(),timeMax:end.toISOString(),singleEvents:true,orderBy:'startTime',maxResults:20});
+    state.events=(res.result.items||[]).map(e=>({
+      time:e.start.dateTime?new Date(e.start.dateTime).toLocaleTimeString('en-MY',{hour:'2-digit',minute:'2-digit'}):'All day',
+      name:e.summary||'(No title)',location:e.location||'',color:''
     }));
     renderEvents();
-  } catch(e) { console.error(e); }
-  finally { document.getElementById('sync-icon').classList.remove('spinning'); }
+  }catch(e){console.error(e);}
+  finally{icon.classList.remove('spinning');}
 }
 
-function syncCalendar() { fetchCalendarEvents(); }
-
-
-
-// ── BNM DATA ──
-async function fetchBNMData() {
-  const container = document.getElementById('bnm-container');
-  const icon = document.getElementById('bnm-sync-icon');
+async function fetchMarketData(){
+  const ticker=document.getElementById('market-ticker');
+  const icon=document.getElementById('mkt-icon');
   icon.classList.add('spinning');
-
-  try {
-    const BASE = 'https://api.bnm.gov.my/public';
-    const headers = { 'Accept': 'application/vnd.BNM.API.v1+json' };
-
-    const [fxRes, oprRes, cpiRes] = await Promise.allSettled([
-      fetch(`${BASE}/exchange-rate`, { headers }),
-      fetch(`${BASE}/opr`, { headers }),
-      fetch(`${BASE}/consumer-price-index`, { headers }),
-    ]);
-
-    // FX Rates
-    let fxHTML = '';
-    const pairs = ['USD', 'SGD', 'GBP', 'EUR', 'AUD'];
-    if (fxRes.status === 'fulfilled' && fxRes.value.ok) {
-      const fxData = await fxRes.value.json();
-      const rates = fxData.data || [];
-      const filtered = rates.filter(r => pairs.includes(r.currency_code));
-      fxHTML = filtered.map(r => {
-        const sell = r.sell_rate ? parseFloat(r.sell_rate).toFixed(4) : '—';
-        const buy = r.buying_rate ? parseFloat(r.buying_rate).toFixed(4) : '—';
-        return `<div class="fx-row">
-          <span class="fx-pair">${r.currency_code}/MYR</span>
-          <span class="fx-rate">Buy ${buy} · Sell ${sell}</span>
-        </div>`;
-      }).join('');
-    } else {
-      fxHTML = '<div class="fx-row"><span class="fx-pair" style="color:var(--text3)">FX data unavailable</span></div>';
-    }
-
-    // OPR
-    let oprHTML = '—';
-    let oprDate = '';
-    if (oprRes.status === 'fulfilled' && oprRes.value.ok) {
-      const oprData = await oprRes.value.json();
-      const latest = Array.isArray(oprData.data) ? oprData.data[0] : oprData.data;
-      if (latest) {
-        oprHTML = parseFloat(latest.rate).toFixed(2) + '%';
-        oprDate = latest.date || latest.effective_date || '';
-      }
-    }
-
-    // CPI
-    let cpiHTML = '—';
-    let cpiDate = '';
-    if (cpiRes.status === 'fulfilled' && cpiRes.value.ok) {
-      const cpiData = await cpiRes.value.json();
-      const latest = Array.isArray(cpiData.data) ? cpiData.data[0] : cpiData.data;
-      if (latest) {
-        const change = latest.annual_change_pct || latest.change || latest.value || '—';
-        cpiHTML = parseFloat(change).toFixed(1) + '%';
-        cpiDate = latest.date || latest.period || '';
-      }
-    }
-
-    const now = new Date().toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' });
-
-    container.innerHTML = `
-      <div class="bnm-grid">
-        <div class="bnm-item">
-          <div class="bnm-label">OPR Rate</div>
-          <div class="bnm-value">${oprHTML}</div>
-          <div class="bnm-sub">${oprDate ? 'Effective ' + oprDate : 'Overnight Policy Rate'}</div>
-        </div>
-        <div class="bnm-item">
-          <div class="bnm-label">Inflation (CPI)</div>
-          <div class="bnm-value">${cpiHTML}</div>
-          <div class="bnm-sub">${cpiDate ? cpiDate : 'Annual change'}</div>
-        </div>
-        <div class="bnm-item bnm-full">
-          <div class="bnm-label" style="margin-bottom:8px">FX Rates vs MYR</div>
-          ${fxHTML}
-        </div>
-      </div>
-      <div class="market-time">Updated ${now} · Bank Negara Malaysia API</div>`;
-
-  } catch(e) {
-    container.innerHTML = '<div class="market-loading">Unable to load BNM data</div>';
-    console.error(e);
-  } finally {
-    icon.classList.remove('spinning');
-  }
-}
-
-// ── MARKET DATA ──
-const MARKET_SYMBOLS = [
-  { symbol: '^KLSE',  name: 'KLCI',     type: 'index' },
-  { symbol: '^GSPC',  name: 'S&P 500',  type: 'index' },
-  { symbol: '^IXIC',  name: 'Nasdaq',   type: 'index' },
-  { symbol: 'GC=F',   name: 'Gold',     type: 'commodity' },
-  { symbol: 'CL=F',   name: 'Oil WTI',  type: 'commodity' },
-];
-
-async function fetchMarketData() {
-  const container = document.getElementById('market-grid-container');
-  const icon = document.getElementById('market-sync-icon');
-  icon.classList.add('spinning');
-
-  try {
-    const results = await Promise.all(MARKET_SYMBOLS.map(async (m) => {
-      try {
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(m.symbol)}?interval=1d&range=1d`;
-        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
-        const data = await res.json();
-        const parsed = JSON.parse(data.contents);
-        const meta = parsed.chart.result[0].meta;
-        const price = meta.regularMarketPrice;
-        const prev = meta.previousClose || meta.chartPreviousClose;
-        const change = price - prev;
-        const changePct = (change / prev) * 100;
-        return { ...m, price, change, changePct, ok: true };
-      } catch(e) {
-        return { ...m, ok: false };
-      }
+  const syms=[{sym:'^KLSE',name:'KLCI'},{sym:'^GSPC',name:'S&P 500'},{sym:'^IXIC',name:'Nasdaq'},{sym:'GC=F',name:'Gold'},{sym:'CL=F',name:'Oil WTI'}];
+  try{
+    const results=await Promise.all(syms.map(async m=>{
+      try{
+        const url=`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(m.sym)}?interval=1d&range=1d`;
+        const r=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+        const d=await r.json();
+        const meta=JSON.parse(d.contents).chart.result[0].meta;
+        const price=meta.regularMarketPrice,prev=meta.previousClose||meta.chartPreviousClose;
+        return{...m,price,pct:((price-prev)/prev*100),ok:true};
+      }catch(e){return{...m,ok:false};}
     }));
-
-    const now = new Date().toLocaleTimeString('en-MY', { hour: '2-digit', minute: '2-digit' });
-
-    const formatPrice = (m) => {
-      if (m.symbol === '^KLSE') return m.price.toFixed(2);
-      if (m.symbol === 'GC=F') return m.price.toLocaleString('en', {maximumFractionDigits: 0});
-      if (m.symbol === 'CL=F') return m.price.toFixed(2);
-      return m.price.toLocaleString('en', {maximumFractionDigits: 0});
-    };
-
-    const grid = results.map(m => {
-      if (!m.ok) return `<div class="market-item"><div class="market-name">${m.name}</div><div class="market-price">—</div><div class="market-change market-flat">N/A</div></div>`;
-      const cls = m.change > 0 ? 'market-up' : m.change < 0 ? 'market-down' : 'market-flat';
-      const arrow = m.change > 0 ? '▲' : m.change < 0 ? '▼' : '—';
-      const pct = Math.abs(m.changePct).toFixed(2);
-      return `<div class="market-item">
-        <div class="market-name">${m.name}</div>
-        <div class="market-price">${formatPrice(m)}</div>
-        <div class="market-change ${cls}">${arrow} ${pct}%</div>
-      </div>`;
+    ticker.innerHTML=results.map(m=>{
+      if(!m.ok)return`<div class="ticker-card"><div class="ticker-name">${m.name}</div><div class="ticker-price">—</div><div class="ticker-change tick-flat">N/A</div></div>`;
+      const fp=m.sym==='^KLSE'||m.sym==='CL=F'?m.price.toFixed(2):m.price>=1000?m.price.toLocaleString('en',{maximumFractionDigits:0}):m.price.toFixed(2);
+      const cls=m.pct>0?'tick-up':m.pct<0?'tick-down':'tick-flat';
+      const arrow=m.pct>0?'▲':m.pct<0?'▼':'—';
+      return`<div class="ticker-card"><div class="ticker-name">${m.name}</div><div class="ticker-price">${fp}</div><div class="ticker-change ${cls}">${arrow} ${Math.abs(m.pct).toFixed(2)}%</div></div>`;
     }).join('');
-
-    container.innerHTML = `<div class="market-grid">${grid}</div><div class="market-time">Updated ${now} · Yahoo Finance</div>`;
-  } catch(e) {
-    container.innerHTML = '<div class="market-loading">Unable to load — check connection</div>';
-  } finally {
-    icon.classList.remove('spinning');
+  }catch(e){
+    ticker.innerHTML='<div class="ticker-card" style="min-width:180px"><div class="ticker-name" style="color:var(--red)">Unable to load</div></div>';
   }
+  icon.classList.remove('spinning');
 }
 
-// ── RENDER ──
-function renderAll() {
-  renderTasks(); renderEvents(); renderClients();
-  renderPipeline(); renderGoals(); renderNotes();
-  updateStats(); fetchMarketData(); fetchBNMData();
+async function fetchBNMData(){
+  const icon=document.getElementById('bnm-icon');icon.classList.add('spinning');
+  const flags={USD:'🇺🇸',SGD:'🇸🇬',GBP:'🇬🇧',EUR:'🇪🇺',AUD:'🇦🇺'};
+  const pairs=['USD','SGD','GBP','EUR','AUD'];
+  try{
+    const h={'Accept':'application/vnd.BNM.API.v1+json'};
+    const B='https://api.bnm.gov.my/public';
+    const [fxR,oprR,cpiR]=await Promise.allSettled([
+      fetch(`${B}/exchange-rate`,{headers:h}),
+      fetch(`${B}/opr`,{headers:h}),
+      fetch(`${B}/consumer-price-index`,{headers:h}),
+    ]);
+    if(oprR.status==='fulfilled'&&oprR.value.ok){
+      const d=await oprR.value.json(),l=Array.isArray(d.data)?d.data[0]:d.data;
+      if(l){document.getElementById('bnm-opr').textContent=parseFloat(l.rate).toFixed(2)+'%';document.getElementById('bnm-opr-sub').textContent='Eff. '+(l.date||l.effective_date||'');}
+    }
+    if(cpiR.status==='fulfilled'&&cpiR.value.ok){
+      const d=await cpiR.value.json(),l=Array.isArray(d.data)?d.data[0]:d.data;
+      if(l){const v=l.annual_change_pct||l.change||l.value||null;if(v!==null){document.getElementById('bnm-cpi').textContent=parseFloat(v).toFixed(1)+'%';document.getElementById('bnm-cpi-sub').textContent=l.date||l.period||'Annual change';}}
+    }
+    const fxEl=document.getElementById('fx-table');
+    if(fxR.status==='fulfilled'&&fxR.value.ok){
+      const d=await fxR.value.json(),rates=(d.data||[]).filter(r=>pairs.includes(r.currency_code));
+      if(rates.length){
+        fxEl.innerHTML=rates.map(r=>{
+          const sell=r.sell_rate?parseFloat(r.sell_rate).toFixed(4):'—';
+          const buy=r.buying_rate?parseFloat(r.buying_rate).toFixed(4):'—';
+          return`<div class="fx-row"><div class="fx-pair"><span class="fx-flag">${flags[r.currency_code]||''}</span>${r.currency_code}/MYR</div><div class="fx-rates"><div class="fx-sell">${sell}</div><div class="fx-buy">Buy ${buy}</div></div></div>`;
+        }).join('');
+      }else{fxEl.innerHTML='<div class="empty-state" style="padding:12px 0;font-size:12px">FX unavailable</div>';}
+    }else{document.getElementById('fx-table').innerHTML='<div class="empty-state" style="padding:12px 0;font-size:12px">FX unavailable</div>';}
+    document.getElementById('bnm-updated').textContent='Updated '+new Date().toLocaleTimeString('en-MY',{hour:'2-digit',minute:'2-digit'})+' · Bank Negara Malaysia';
+  }catch(e){console.error(e);}
+  icon.classList.remove('spinning');
 }
 
-function renderEvents() {
-  const el = document.getElementById('events-list');
-  if (!state.events.length) { el.innerHTML = '<div class="empty-state">No meetings today 🎉</div>'; return; }
-  el.innerHTML = state.events.map(e => `
-    <div class="event-item">
-      <div class="event-time">${e.time}</div>
-      <div class="event-dot ${e.color}"></div>
-      <div>
-        <div class="event-name">${e.name}</div>
-        ${e.location ? `<div class="event-loc">📍 ${e.location}</div>` : ''}
-      </div>
-    </div>`).join('');
-  document.getElementById('stat-events').textContent = state.events.length;
-}
+function renderAll(){updateHero();renderTasks();renderEvents();renderClients();renderPipeline();renderGoals();renderNotes();}
 
-function renderTasks() {
-  const el = document.getElementById('tasks-list');
-  if (!state.tasks.length) { el.innerHTML = '<div class="empty-state">No tasks yet — add one above</div>'; updateStats(); return; }
-  el.innerHTML = state.tasks.map(t => `
-    <div class="task-item ${t.done ? 'done' : ''}" id="task-${t.id}">
-      <div class="task-check ${t.done ? 'checked' : ''}" onclick="toggleTask(${t.id})"></div>
-      <div class="task-text">${t.text}</div>
-      <div class="task-tag tag-${t.tag}">${t.tag}</div>
-    </div>`).join('');
+function updateHero(){
+  const h=new Date().getHours();
+  document.getElementById('hero-period').textContent=h<12?'GOOD MORNING':h<17?'GOOD AFTERNOON':'GOOD EVENING';
+  document.getElementById('hero-name').textContent=state.user?.name?.split(' ')[0]||'Welcome back';
+  document.getElementById('hero-date').textContent=new Date().toLocaleDateString('en-MY',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   updateStats();
 }
 
-function renderClients() {
-  const el = document.getElementById('clients-list');
-  if (!state.clients.length) { el.innerHTML = '<div class="empty-state">No clients yet</div>'; return; }
-  const colors = ['#2563eb','#059669','#7c3aed','#d97706','#dc2626','#0ea5e9'];
-  el.innerHTML = state.clients.map((c, i) => {
-    const initials = c.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
-    const daysUntil = Math.ceil((new Date(c.followup) - new Date()) / 86400000);
-    const followStr = daysUntil < 0 ? `Overdue ${Math.abs(daysUntil)}d` : daysUntil === 0 ? 'Today!' : `In ${daysUntil}d`;
-    return `<div class="client-item">
-      <div class="client-avatar" style="background:${colors[i%colors.length]}22;color:${colors[i%colors.length]}">${initials}</div>
-      <div class="client-info">
-        <div class="client-name">${c.name}</div>
-        <div class="client-detail">${c.aum} · Follow-up: ${followStr}</div>
-      </div>
-      <div class="client-status status-${c.status}">${c.status}</div>
-    </div>`;
-  }).join('');
-  document.getElementById('stat-followup').textContent = state.clients.filter(c => c.status === 'followup').length;
+function updateStats(){
+  document.getElementById('stat-tasks').textContent=state.tasks.filter(t=>!t.done).length;
+  document.getElementById('stat-events').textContent=state.events.length;
+  document.getElementById('stat-followup').textContent=state.clients.filter(c=>c.status==='followup').length;
 }
 
-function renderPipeline() {
-  const stages = [
-    { key: 'prospect', label: 'Prospect', color: '#94a3b8' },
-    { key: 'proposal', label: 'Proposal Sent', color: '#2563eb' },
-    { key: 'negotiation', label: 'Negotiating', color: '#d97706' },
-    { key: 'closed', label: 'Closed', color: '#059669' },
-  ];
-  const el = document.getElementById('pipeline-view');
-  el.innerHTML = stages.map(s => {
-    const items = state.pipeline.filter(p => p.stage === s.key);
-    return `<div class="pipeline-col">
-      <div class="pipeline-label">
-        <div class="pipeline-dot" style="background:${s.color}"></div>
-        ${s.label} (${items.length})
-      </div>
-      ${items.length ? items.map(p => `
-        <div class="pipeline-card">
-          <div class="pipeline-name">${p.name}</div>
-          <div class="pipeline-meta">${p.note}</div>
-          <div class="pipeline-amount">${p.amount}</div>
-        </div>`).join('') : `<div class="pipeline-card"><div class="pipeline-meta" style="color:var(--text3)">None</div></div>`}
+function renderEvents(){
+  const el=document.getElementById('events-list');
+  if(!state.events.length){el.innerHTML='<div class="empty-state">No meetings today 🎉</div>';updateStats();return;}
+  el.innerHTML=state.events.map((e,i)=>{
+    const isLast=i===state.events.length-1;
+    const t=e.time;const ampm=t.includes('AM')?'AM':t.includes('PM')?'PM':'';const tNum=t.replace(' AM','').replace(' PM','');
+    return`<div class="event-row">
+      <div class="event-time-col"><div class="event-time">${tNum}</div><div class="event-ampm">${ampm}</div></div>
+      <div class="event-dot-col"><div class="event-dot ${e.color}"></div>${!isLast?'<div class="event-line"></div>':''}</div>
+      <div style="flex:1"><div class="event-name">${e.name}</div>${e.location?`<div class="event-location">📍 ${e.location}</div>`:''}</div>
     </div>`;
-  }).join('');
+  }).join('');updateStats();
 }
 
-function renderGoals() {
-  const el = document.getElementById('goals-list');
-  if (!state.goals.length) { el.innerHTML = '<div class="empty-state">No goals set yet</div>'; return; }
-  el.innerHTML = state.goals.map(g => {
-    const pct = Math.min(100, Math.round((g.current / g.target) * 100));
-    const cur = typeof g.current === 'number' && g.current > 999 ? g.current.toLocaleString() : g.current;
-    const tar = typeof g.target === 'number' && g.target > 999 ? g.target.toLocaleString() : g.target;
-    return `<div class="goal-item">
-      <div class="goal-header">
-        <div class="goal-name">${g.name}</div>
-        <div class="goal-pct">${pct}%</div>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${g.color}"></div></div>
-      <div class="goal-sub">${cur} / ${tar}</div>
-    </div>`;
+function renderTasks(){
+  const el=document.getElementById('tasks-list');
+  if(!state.tasks.length){el.innerHTML='<div class="empty-state" style="padding:20px">No tasks — tap + Add</div>';updateStats();return;}
+  el.innerHTML=state.tasks.map(t=>`<div class="task-item ${t.done?'done':''}"><div class="task-check ${t.done?'checked':''}" onclick="toggleTask(${t.id})"></div><div class="task-text">${t.text}</div><div class="task-tag tag-${t.tag}">${t.tag}</div></div>`).join('');
+  updateStats();
+}
+
+function renderClients(){
+  const el=document.getElementById('clients-list');
+  if(!state.clients.length){el.innerHTML='<div class="empty-state" style="padding:24px">No clients yet</div>';updateStats();return;}
+  const cols=['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#06b6d4'];
+  el.innerHTML=state.clients.map((c,i)=>{
+    const ini=c.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+    const days=Math.ceil((new Date(c.followup)-new Date())/86400000);
+    const fs=days<0?`Overdue ${Math.abs(days)}d`:days===0?'Today!':`In ${days}d`;
+    return`<div class="client-item"><div class="client-av" style="background:${cols[i%cols.length]}18;color:${cols[i%cols.length]}">${ini}</div><div style="flex:1"><div class="client-name">${c.name}</div><div class="client-detail">${c.aum} · ${fs}</div></div><div class="status-pill status-${c.status}">${c.status}</div></div>`;
+  }).join('');updateStats();
+}
+
+function renderPipeline(){
+  const stages=[{key:'prospect',label:'Prospect',color:'#94a3b8'},{key:'proposal',label:'Proposal Sent',color:'#3b82f6'},{key:'negotiation',label:'Negotiating',color:'#f59e0b'},{key:'closed',label:'Closed Won',color:'#10b981'}];
+  document.getElementById('pipeline-view').innerHTML=stages.map(s=>{
+    const items=state.pipeline.filter(p=>p.stage===s.key);
+    return`<div class="pipeline-stage"><div class="stage-header"><div class="stage-dot" style="background:${s.color}"></div><div class="stage-label">${s.label}</div><div class="stage-count">(${items.length})</div></div>${items.length?items.map(p=>`<div class="pipeline-item"><div class="pipeline-name">${p.name}</div><div class="pipeline-note">${p.note}</div><div class="pipeline-amount">${p.amount}</div></div>`).join(''):'<div class="pipeline-item" style="opacity:0.5"><div class="pipeline-note">None</div></div>'}</div>`;
   }).join('');
 }
 
-function renderNotes() {
-  const el = document.getElementById('notes-list');
-  if (!state.notes.length) { el.innerHTML = '<div class="empty-state">No notes yet</div>'; return; }
-  el.innerHTML = state.notes.map(n => `
-    <div class="note-item">
-      <div class="note-date">${n.date}</div>
-      <div class="note-text">${n.text}</div>
-    </div>`).join('');
+function renderGoals(){
+  const el=document.getElementById('goals-list');
+  if(!state.goals.length){el.innerHTML='<div class="empty-state">No goals set</div>';return;}
+  el.innerHTML=state.goals.map(g=>{
+    const pct=Math.min(100,Math.round((g.current/g.target)*100));
+    const cur=g.current>999?g.current.toLocaleString():g.current;
+    const tar=g.target>999?g.target.toLocaleString():g.target;
+    return`<div class="goal-item"><div class="goal-top"><div class="goal-name">${g.name}</div><div class="goal-pct">${pct}%</div></div><div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${g.color}"></div></div><div class="goal-sub">${cur} / ${tar}</div></div>`;
+  }).join('');
 }
 
-function updateStats() {
-  const remaining = state.tasks.filter(t => !t.done).length;
-  document.getElementById('stat-tasks').textContent = remaining;
+function renderNotes(){
+  const el=document.getElementById('notes-list');
+  if(!state.notes.length){el.innerHTML='<div class="empty-state">No notes yet</div>';return;}
+  el.innerHTML=state.notes.map(n=>`<div class="note-item"><div class="note-date">${n.date}</div><div class="note-text">${n.text}</div></div>`).join('');
 }
 
-// ── ACTIONS ──
-function toggleTask(id) {
-  const t = state.tasks.find(t => t.id === id);
-  if (t) { t.done = !t.done; saveToStorage(); renderTasks(); }
+function toggleTask(id){const t=state.tasks.find(t=>t.id===id);if(t){t.done=!t.done;saveToStorage();renderTasks();}}
+function openAddTask(){const r=document.getElementById('task-input-row');r.style.display=r.style.display==='none'?'flex':'none';if(r.style.display==='flex')document.getElementById('new-task-input').focus();}
+function quickAddTask(){const text=document.getElementById('new-task-input').value.trim();if(!text)return;state.tasks.push({id:Date.now(),text,tag:document.getElementById('new-task-tag').value,done:false});document.getElementById('new-task-input').value='';saveToStorage();renderTasks();}
+function addTaskFromModal(){const text=document.getElementById('modal-task-text').value.trim();if(!text)return;state.tasks.push({id:Date.now(),text,tag:document.getElementById('modal-task-tag').value,done:false});document.getElementById('modal-task-text').value='';closeModal('task-modal');saveToStorage();renderTasks();}
+function openAddClient(){document.getElementById('client-modal').classList.add('open');}
+function addClient(){const name=document.getElementById('client-name').value.trim();if(!name)return;state.clients.push({id:Date.now(),name,aum:document.getElementById('client-aum').value||'TBD',followup:document.getElementById('client-followup').value||new Date().toISOString().split('T')[0],status:document.getElementById('client-status').value,notes:document.getElementById('client-notes').value});closeModal('client-modal');saveToStorage();renderClients();}
+function openAddNote(){document.getElementById('note-text').value='';document.getElementById('note-modal').classList.add('open');}
+function addNote(){const text=document.getElementById('note-text').value.trim();if(!text)return;state.notes.unshift({id:Date.now(),date:new Date().toLocaleDateString('en-MY',{day:'numeric',month:'short',year:'numeric'}),text});closeModal('note-modal');saveToStorage();renderNotes();}
+function openAddGoal(){alert('Tell me what goals you want to add and I will put them in for you!');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+function switchTab(tab){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('nav-'+tab).classList.add('active');
+  ['today','clients','pipeline','goals','notes'].forEach((t,i)=>{if(t===tab)document.querySelectorAll('.nav-tab')[i].classList.add('active');});
 }
 
-function openAddTask() {
-  const row = document.getElementById('add-task-inline');
-  row.style.display = row.style.display === 'none' ? 'flex' : 'none';
-  if (row.style.display === 'flex') document.getElementById('new-task-input').focus();
+function loadDemoMode(){
+  state.isDemo=true;
+  state.tasks=[{id:1,text:'Review Ahmad portfolio rebalancing',tag:'client',done:false},{id:2,text:'Prepare Q2 market update report',tag:'admin',done:false},{id:3,text:'Call Sarah re: insurance renewal',tag:'urgent',done:false},{id:4,text:'Submit CPD hours online',tag:'admin',done:true}];
+  state.clients=[{id:1,name:'Ahmad Razif',aum:'MYR 850k',followup:'2026-05-10',status:'active',notes:''},{id:2,name:'Sarah Lim',aum:'MYR 320k',followup:'2026-05-08',status:'followup',notes:''},{id:3,name:'David Tan',aum:'MYR 1.2M',followup:'2026-05-20',status:'active',notes:''},{id:4,name:'Priya Nair',aum:'TBD',followup:'2026-05-09',status:'prospect',notes:''}];
+  state.pipeline=[{id:1,name:'Priya Nair',stage:'prospect',amount:'MYR ~400k',note:'Initial meeting done'},{id:2,name:'Lee Family Trust',stage:'proposal',amount:'MYR 2.1M',note:'Proposal sent 30 Apr'},{id:3,name:'Farah Abdullah',stage:'negotiation',amount:'MYR 600k',note:'Reviewing fee structure'},{id:4,name:'Robert Chen',stage:'closed',amount:'MYR 750k',note:'Onboarded May 2'}];
+  state.goals=[{id:1,name:'New AUM (Q2 target: MYR 5M)',current:3200000,target:5000000,color:'#3b82f6'},{id:2,name:'New clients (target: 6)',current:3,target:6,color:'#10b981'},{id:3,name:'CPD Hours (target: 40)',current:28,target:40,color:'#8b5cf6'},{id:4,name:'Client reviews (target: 20)',current:11,target:20,color:'#f59e0b'}];
+  state.notes=[{id:1,date:'7 May 2026',text:'Fed hold expected — positioning defensively in client portfolios. Watching US 10Y yield.'},{id:2,date:'5 May 2026',text:'KLCI testing support at 1,560. Local sentiment still cautious pre-election season.'},{id:3,date:'2 May 2026',text:'Global tech earnings solid. Revisiting client tech allocation.'}];
+  state.events=[{time:'09:00 AM',name:'Ahmad — Portfolio Review',location:'Zoom',color:''},{time:'11:30 AM',name:'Team Briefing',location:'Office KL',color:'amber'},{time:'02:00 PM',name:'Lee Family Trust Presentation',location:'Client Office',color:''},{time:'04:30 PM',name:'CPD Webinar: Estate Planning',location:'Online',color:'green'}];
+  state.user={name:'Demo User',email:'demo@advisormy.com'};
+  setAvatar('Demo User'); showApp();
 }
 
-function quickAddTask() {
-  const text = document.getElementById('new-task-input').value.trim();
-  const tag = document.getElementById('new-task-tag').value;
-  if (!text) return;
-  state.tasks.push({ id: Date.now(), text, tag, done: false });
-  document.getElementById('new-task-input').value = '';
-  saveToStorage(); renderTasks();
-}
+function saveToStorage(){try{localStorage.setItem('fp-state',JSON.stringify({tasks:state.tasks,clients:state.clients,pipeline:state.pipeline,goals:state.goals,notes:state.notes}));}catch(e){}}
+function loadFromStorage(){try{const s=JSON.parse(localStorage.getItem('fp-state')||'{}');if(s.tasks)state.tasks=s.tasks;if(s.clients)state.clients=s.clients;if(s.pipeline)state.pipeline=s.pipeline;if(s.goals)state.goals=s.goals;if(s.notes)state.notes=s.notes;}catch(e){}}
 
-function addTaskFromModal() {
-  const text = document.getElementById('modal-task-text').value.trim();
-  const tag = document.getElementById('modal-task-tag').value;
-  if (!text) return;
-  state.tasks.push({ id: Date.now(), text, tag, done: false });
-  document.getElementById('modal-task-text').value = '';
-  closeModal('task-modal'); saveToStorage(); renderTasks();
-}
-
-function openAddTask() {
-  document.getElementById('modal-task-text').value = '';
-  document.getElementById('task-modal').classList.add('open');
-}
-
-function openAddClient() {
-  document.getElementById('client-modal').classList.add('open');
-}
-
-function addClient() {
-  const name = document.getElementById('client-name').value.trim();
-  if (!name) return;
-  state.clients.push({
-    id: Date.now(), name,
-    aum: document.getElementById('client-aum').value || 'TBD',
-    followup: document.getElementById('client-followup').value || new Date().toISOString().split('T')[0],
-    status: document.getElementById('client-status').value,
-    notes: document.getElementById('client-notes').value
-  });
-  closeModal('client-modal'); saveToStorage(); renderClients();
-}
-
-function openAddNote() {
-  document.getElementById('note-text').value = '';
-  document.getElementById('note-modal').classList.add('open');
-}
-
-function addNote() {
-  const text = document.getElementById('note-text').value.trim();
-  if (!text) return;
-  const now = new Date();
-  state.notes.unshift({ id: Date.now(), date: now.toLocaleDateString('en-MY', { day: 'numeric', month: 'short', year: 'numeric' }), text });
-  closeModal('note-modal'); saveToStorage(); renderNotes();
-}
-
-function openAddGoal() {
-  alert('Goal editing coming soon! Edit the state.goals array in the code to add custom goals.');
-}
-
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// ── NAV ──
-function switchTab(tab) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.bottom-nav-item').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.getElementById('nav-' + tab).classList.add('active');
-  const tabs = ['today','clients','pipeline','goals','notes'];
-  const idx = tabs.indexOf(tab);
-  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
-}
-
-// ── UTILS ──
-function updateTopDate() {
-  const now = new Date();
-  document.getElementById('top-date').textContent = now.toLocaleDateString('en-MY', { weekday: 'short', month: 'short', day: 'numeric' });
-}
-
-function updateGreeting() {
-  const h = new Date().getHours();
-  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  document.getElementById('greeting-text').textContent = greet + ' 👋';
-  const day = new Date().toLocaleDateString('en-MY', { weekday: 'long', day: 'numeric', month: 'long' });
-  document.getElementById('greeting-sub').textContent = day;
-}
-
-function showProfile() {
-  if (state.user) {
-    const action = confirm(`${state.user.name}\n${state.user.email}\n\n登出账号？`);
-    if (action) signOut();
-  } else {
-    alert('Demo mode — connect Google account for full features.');
-  }
-}
-
-function saveToStorage() {
-  try { localStorage.setItem('fp-state', JSON.stringify({ tasks: state.tasks, clients: state.clients, pipeline: state.pipeline, goals: state.goals, notes: state.notes })); } catch(e) {}
-}
-
-function loadFromStorage() {
-  try {
-    const saved = JSON.parse(localStorage.getItem('fp-state') || '{}');
-    if (saved.tasks) state.tasks = saved.tasks;
-    if (saved.clients) state.clients = saved.clients;
-    if (saved.pipeline) state.pipeline = saved.pipeline;
-    if (saved.goals) state.goals = saved.goals;
-    if (saved.notes) state.notes = saved.notes;
-  } catch(e) {}
-}
-
-// Close modals on overlay click
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
-});
-
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
 init();
 </script>
 </body>

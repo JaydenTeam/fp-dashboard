@@ -513,35 +513,84 @@ async function fetchBNMData(){
   const icon=document.getElementById('bnm-icon');icon.classList.add('spinning');
   const flags={USD:'🇺🇸',SGD:'🇸🇬',GBP:'🇬🇧',EUR:'🇪🇺',AUD:'🇦🇺'};
   const pairs=['USD','SGD','GBP','EUR','AUD'];
+
+  async function bnmFetch(endpoint){
+    // Try direct first, then proxy fallbacks
+    const base='https://api.bnm.gov.my/public';
+    const headers={'Accept':'application/vnd.BNM.API.v1+json'};
+    const proxies=[
+      `https://api.allorigins.win/get?url=${encodeURIComponent(base+endpoint)}`,
+      `https://corsproxy.io/?${encodeURIComponent(base+endpoint)}`,
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(base+endpoint)}`,
+    ];
+    for(const proxy of proxies){
+      try{
+        const r=await fetch(proxy,{headers});
+        if(!r.ok)continue;
+        const raw=await r.json();
+        // allorigins wraps in {contents: "..."}
+        const text=raw.contents||raw;
+        const parsed=typeof text==='string'?JSON.parse(text):text;
+        if(parsed&&(parsed.data!==undefined||parsed.rate!==undefined))return parsed;
+      }catch(e){continue;}
+    }
+    return null;
+  }
+
   try{
-    const h={'Accept':'application/vnd.BNM.API.v1+json'};
-    const B='https://api.bnm.gov.my/public';
-    const [fxR,oprR,cpiR]=await Promise.allSettled([
-      fetch(`${B}/exchange-rate`,{headers:h}),
-      fetch(`${B}/opr`,{headers:h}),
-      fetch(`${B}/consumer-price-index`,{headers:h}),
+    const [oprData,fxData,cpiData]=await Promise.all([
+      bnmFetch('/opr'),
+      bnmFetch('/exchange-rate'),
+      bnmFetch('/consumer-price-index'),
     ]);
-    if(oprR.status==='fulfilled'&&oprR.value.ok){
-      const d=await oprR.value.json(),l=Array.isArray(d.data)?d.data[0]:d.data;
-      if(l){document.getElementById('bnm-opr').textContent=parseFloat(l.rate).toFixed(2)+'%';document.getElementById('bnm-opr-sub').textContent='Eff. '+(l.date||l.effective_date||'');}
+
+    // OPR
+    if(oprData){
+      const l=Array.isArray(oprData.data)?oprData.data[0]:oprData.data;
+      if(l&&l.rate){
+        document.getElementById('bnm-opr').textContent=parseFloat(l.rate).toFixed(2)+'%';
+        document.getElementById('bnm-opr-sub').textContent='Eff. '+(l.date||l.effective_date||'');
+      }
     }
-    if(cpiR.status==='fulfilled'&&cpiR.value.ok){
-      const d=await cpiR.value.json(),l=Array.isArray(d.data)?d.data[0]:d.data;
-      if(l){const v=l.annual_change_pct||l.change||l.value||null;if(v!==null){document.getElementById('bnm-cpi').textContent=parseFloat(v).toFixed(1)+'%';document.getElementById('bnm-cpi-sub').textContent=l.date||l.period||'Annual change';}}
+
+    // CPI
+    if(cpiData){
+      const l=Array.isArray(cpiData.data)?cpiData.data[0]:cpiData.data;
+      if(l){
+        const v=l.annual_change_pct||l.change||l.value||null;
+        if(v!==null){
+          document.getElementById('bnm-cpi').textContent=parseFloat(v).toFixed(1)+'%';
+          document.getElementById('bnm-cpi-sub').textContent=l.date||l.period||'Annual change';
+        }
+      }
     }
+
+    // FX
     const fxEl=document.getElementById('fx-table');
-    if(fxR.status==='fulfilled'&&fxR.value.ok){
-      const d=await fxR.value.json(),rates=(d.data||[]).filter(r=>pairs.includes(r.currency_code));
+    if(fxData){
+      const rates=(fxData.data||[]).filter(r=>pairs.includes(r.currency_code));
       if(rates.length){
         fxEl.innerHTML=rates.map(r=>{
           const sell=r.sell_rate?parseFloat(r.sell_rate).toFixed(4):'—';
           const buy=r.buying_rate?parseFloat(r.buying_rate).toFixed(4):'—';
-          return`<div class="fx-row"><div class="fx-pair"><span class="fx-flag">${flags[r.currency_code]||''}</span>${r.currency_code}/MYR</div><div class="fx-rates"><div class="fx-sell">${sell}</div><div class="fx-buy">Buy ${buy}</div></div></div>`;
+          return`<div class="fx-row">
+            <div class="fx-pair"><span class="fx-flag">${flags[r.currency_code]||''}</span>${r.currency_code}/MYR</div>
+            <div class="fx-rates"><div class="fx-sell">${sell}</div><div class="fx-buy">Buy ${buy}</div></div>
+          </div>`;
         }).join('');
-      }else{fxEl.innerHTML='<div class="empty-state" style="padding:12px 0;font-size:12px">FX unavailable</div>';}
-    }else{document.getElementById('fx-table').innerHTML='<div class="empty-state" style="padding:12px 0;font-size:12px">FX unavailable</div>';}
+      }else{
+        // Fallback: hardcode known OPR and show static notice
+        fxEl.innerHTML='<div class="empty-state" style="padding:8px 0;font-size:12px;color:var(--text3)">FX data temporarily unavailable</div>';
+      }
+    }else{
+      document.getElementById('fx-table').innerHTML='<div class="empty-state" style="padding:8px 0;font-size:12px;color:var(--text3)">FX data temporarily unavailable</div>';
+    }
+
     document.getElementById('bnm-updated').textContent='Updated '+new Date().toLocaleTimeString('en-MY',{hour:'2-digit',minute:'2-digit'})+' · Bank Negara Malaysia';
-  }catch(e){console.error(e);}
+  }catch(e){
+    console.error('BNM fetch error:',e);
+    document.getElementById('bnm-updated').textContent='Unable to load BNM data';
+  }
   icon.classList.remove('spinning');
 }
 
